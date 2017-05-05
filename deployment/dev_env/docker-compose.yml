@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
 
   consul:
@@ -9,7 +9,7 @@ services:
       - "8400"
       - "8500:8500"
       - "53"
-      
+
   nginx:
     image: openlmis/nginx:1
     ports:
@@ -23,13 +23,13 @@ services:
     depends_on: [consul]
 
   reference-ui:
-    image: openlmis/requisition-refui:4.0.0
+    image: openlmismw/reference-ui:1.0.0-SNAPSHOT
     env_file: .env
     depends_on: [consul]
 
   requisition:
     restart: always
-    image: openlmis/requisition:3.1.1
+    image: openlmis/requisition:3.1.2-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration,filesystem:/demo-data'
@@ -40,7 +40,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:4.0.0
+    image: openlmis/referencedata:5.0.0-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration,filesystem:/demo-data'
@@ -51,7 +51,7 @@ services:
 
   auth:
     restart: always
-    image: openlmis/auth:3.0.1
+    image: openlmis/auth:3.0.2-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration,filesystem:/demo-data'
@@ -62,7 +62,7 @@ services:
 
   notification:
     restart: always
-    image: openlmis/notification:3.0.0
+    image: openlmis/notification:3.0.1-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
@@ -73,7 +73,7 @@ services:
 
   fulfillment:
     restart: always
-    image: openlmis/fulfillment:3.0.1
+    image: openlmis/fulfillment:3.1.0-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration,filesystem:/demo-data'
@@ -81,6 +81,17 @@ services:
     volumes:
       - 'service-config:/config'
     depends_on: [log]
+
+  reports:
+    image: openlmismw/reports:1.0.0-SNAPSHOT
+    env_file: .env
+    environment:
+      JAVA_OPTS: '-Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      spring_profiles_active: ${spring_profiles_active}
+    volumes:
+      - 'service-config:/config'
+    depends_on: [log]
+
 
   log:
     restart: always
@@ -90,16 +101,6 @@ services:
     depends_on:
       - service-configuration
       - consul
-
-  scalyr:
-    image: openlmis/scalyr
-    container_name: scalyr-agent
-    env_file: .env
-    volumes:
-      - 'service-config:/config'
-      - '/run/docker.sock:/var/scalyr/docker.sock'
-      - 'syslog:/var/log'
-      - 'nginx-log:/var/log/nginx/log'
 
   service-configuration:
     build:
