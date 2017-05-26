@@ -121,7 +121,6 @@ services:
       - 'syslog:/var/log'
       - 'nginx-log:/var/log/nginx/log'
 
-
   service-configuration:
     build:
       context: ./config
