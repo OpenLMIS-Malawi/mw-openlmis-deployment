@@ -29,7 +29,7 @@ services:
 
   requisition:
     restart: always
-    image: openlmis/requisition:3.1.4
+    image: openlmis/requisition:3.1.3
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -40,7 +40,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:6.0.1
+    image: openlmis/referencedata:5.0.0
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -73,7 +73,7 @@ services:
 
   fulfillment:
     restart: always
-    image: openlmis/fulfillment:3.1.0-SNAPSHOT
+    image: openlmis/fulfillment:3.0.2
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -91,7 +91,7 @@ services:
     volumes:
       - 'service-config:/config'
     depends_on: [log]
-
+    
   mw-requisition:
     image: openlmismw/requisition:1.0.0-SNAPSHOT
     env_file: .env
@@ -110,16 +110,6 @@ services:
     depends_on:
       - service-configuration
       - consul
-
-  scalyr:
-    image: openlmis/scalyr
-    container_name: scalyr-agent
-    env_file: .env
-    volumes:
-      - 'service-config:/config'
-      - '/run/docker.sock:/var/scalyr/docker.sock'
-      - 'syslog:/var/log'
-      - 'nginx-log:/var/log/nginx/log'
 
   service-configuration:
     build:
