@@ -38,6 +38,16 @@ services:
       - 'service-config:/config'
     depends_on: [log]
 
+  stockmanagement:
+    image: openlmis/stockmanagement:1.0.0-SNAPSHOT
+    env_file: .env
+    environment:
+      JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      spring_profiles_active: ${spring_profiles_active}
+    volumes:
+      - 'service-config:/config'
+    depends_on: [log]
+
   referencedata:
     restart: always
     image: openlmis/referencedata:8.0.0-SNAPSHOT
