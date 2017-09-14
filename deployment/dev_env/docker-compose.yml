@@ -127,14 +127,6 @@ services:
     volumes:
       - service-config:/config
 
-  ftp:
-    image: hauptmedia/proftpd
-    ports:
-      - "21:21"
-      - "20:20"
-    env_file: .env
-    depends_on: [consul]
-
 volumes:
   syslog:
     external: false
