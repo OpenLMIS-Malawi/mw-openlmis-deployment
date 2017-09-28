@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-cp ./credentials/.env ./.env
+cp ../../credentials/.env ./.env
