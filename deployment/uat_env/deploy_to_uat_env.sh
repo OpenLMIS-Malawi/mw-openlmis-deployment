@@ -12,7 +12,7 @@ cp ../../credentials/.env-restore ./.env-restore
 if [ "$KEEP_OR_WIPE" == "wipe" ]; then
     echo "Restoring database from the latest snapshot"
     /usr/local/bin/docker-compose down
-    docker-compose -f docker-compose-restore.yml run rds-restore
+    /usr/local/bin/docker-compose docker-compose -f docker-compose-restore.yml run rds-restore
     unset spring_profiles_active
     /usr/local/bin/docker-compose up --build --force-recreate -d
 else
