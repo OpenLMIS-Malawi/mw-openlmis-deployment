@@ -2,7 +2,7 @@
 
 export DOCKER_TLS_VERIFY="1"
 export DOCKER_HOST="52.15.171.186:2376"
-export DOCKER_CERT_PATH="${PWD}/credentials"
+export DOCKER_CERT_PATH="${PWD}/../../credentials"
 
 ../shared/init_env.sh
 
