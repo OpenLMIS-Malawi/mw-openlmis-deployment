@@ -13,7 +13,6 @@ if [ "$KEEP_OR_WIPE" == "wipe" ]; then
     echo "Restoring database from the latest snapshot"
     /usr/local/bin/docker-compose down
     /usr/local/bin/docker-compose -f restore/docker-compose.yml run rds-restore
-    unset spring_profiles_active
     /usr/local/bin/docker-compose up --build --force-recreate -d
 else
     ../shared/restart.sh $1
