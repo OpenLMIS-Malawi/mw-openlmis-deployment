@@ -82,7 +82,7 @@ services:
       - 'service-config:/config'
     depends_on: [log]
     
- cce:
+  cce:
     image: openlmis/cce:1.0.0-SNAPSHOT
     env_file: .env
     environment:
