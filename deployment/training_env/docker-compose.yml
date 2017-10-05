@@ -22,14 +22,14 @@ services:
       - 'consul-template-log:/var/log/consul-template'
     depends_on: [consul]
 
-  reference-ui:
-    image: openlmismw/reference-ui:1.0.0-SNAPSHOT
+  ui:
+    image: openlmismw/ui:1.2.0-SNAPSHOT
     env_file: .env
     depends_on: [consul]
 
   requisition:
     restart: always
-    image: openlmis/requisition:3.1.4
+    image: openlmis/requisition:5.0.0
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -40,7 +40,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:6.0.1
+    image: openlmis/referencedata:8.0.1
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -51,7 +51,7 @@ services:
 
   auth:
     restart: always
-    image: openlmis/auth:3.0.2
+    image: openlmis/auth:3.1.0
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -62,7 +62,7 @@ services:
 
   notification:
     restart: always
-    image: openlmis/notification:3.0.1
+    image: openlmis/notification:3.0.3
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
@@ -73,7 +73,7 @@ services:
 
   fulfillment:
     restart: always
-    image: openlmis/fulfillment:3.1.0-SNAPSHOT
+    image: openlmis/fulfillment:6.0.0
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -83,17 +83,17 @@ services:
     depends_on: [log]
 
   reports:
-    image: openlmismw/reports:1.1.0-SNAPSHOT
+    image: openlmismw/reports:1.2.0-SNAPSHOT
     env_file: .env
     environment:
-      JAVA_OPTS: '-Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx2048m -XX:PermSize=256m -XX:MaxPermSize=512M -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
     depends_on: [log]
 
-  mw-requisition:
-    image: openlmismw/requisition:1.0.0-SNAPSHOT
+  stockmanagement:
+    image: openlmis/stockmanagement:1.0.0
     env_file: .env
     environment:
       JAVA_OPTS: '-Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -126,14 +126,6 @@ services:
       context: ./config
     volumes:
       - service-config:/config
-
-  ftp:
-    image: hauptmedia/proftpd
-    ports:
-      - "21:21"
-      - "20:20"
-    env_file: .env
-    depends_on: [consul]
 
 volumes:
   syslog:
