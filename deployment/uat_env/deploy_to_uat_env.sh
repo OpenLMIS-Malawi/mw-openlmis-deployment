@@ -5,15 +5,7 @@ export DOCKER_HOST="lmis-uat.health.gov.mw:2376"
 export DOCKER_CERT_PATH="${PWD}/../../credentials"
 
 ../shared/init_env.sh
-cp ../../credentials/.env-restore restore/.env-restore
 
 /usr/local/bin/docker-compose pull
 
-if [ "$KEEP_OR_WIPE" == "wipe" ]; then
-    echo "Restoring database from the latest snapshot"
-    /usr/local/bin/docker-compose down -v
-    /usr/local/bin/docker-compose -f restore/docker-compose.yml run rds-restore
-    /usr/local/bin/docker-compose up --build --force-recreate -d
-else
-    ../shared/restart.sh $1
-fi
+../shared/restart_or_restore.sh $1

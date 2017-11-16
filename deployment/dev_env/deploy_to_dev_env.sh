@@ -6,6 +6,6 @@ export DOCKER_CERT_PATH="${PWD}/../../credentials"
 
 ../shared/init_env.sh
 
-../shared/pull_images.sh $1
+/usr/local/bin/docker-compose pull
 
-../shared/restart.sh $1
+../shared/restart_or_restore.sh $1
