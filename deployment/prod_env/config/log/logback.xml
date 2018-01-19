@@ -27,6 +27,10 @@
         <appender-ref ref="SYSLOG"/>
     </logger>
 
+    <logger name="org.openlmis.referencedata.util.Resource2Db" level="WARN" additivity="false">
+        <appender-ref ref="SYSLOG"/>
+    </logger>
+
     <!-- Define the root logger log level -->
     <root level="WARN">
         <appender-ref ref="SYSLOG"/>
