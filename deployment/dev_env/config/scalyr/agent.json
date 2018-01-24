@@ -30,7 +30,14 @@
 
   monitors: [
     {
-      module: "scalyr_agent.builtin_monitors.docker_monitor"
+      "module": "scalyr_agent.builtin_monitors.syslog_monitor",
+      "mode": "docker",
+      "docker_regex": "^.*([a-z0-9]{12})\\[\\d+\\]: "
+    }, 
+    {
+      "module": "scalyr_agent.builtin_monitors.docker_monitor",
+      "log_mode": "syslog",
+      "report_container_metrics": true
     },
     {
       module: "scalyr_agent.builtin_monitors.linux_process_metrics",
