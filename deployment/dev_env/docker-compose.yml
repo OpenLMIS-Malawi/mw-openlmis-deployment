@@ -120,8 +120,6 @@ services:
       - '/var/run/docker.sock:/var/scalyr/docker.sock'
       - 'syslog:/var/log'
       - 'nginx-log:/var/log/nginx/log'
-    ports:
-      - "601:601"
 
   service-configuration:
     build:
