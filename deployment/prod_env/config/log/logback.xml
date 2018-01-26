@@ -6,7 +6,7 @@
         <prudent>true</prudent>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/var/log/malawi.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
+            <maxHistory>90</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>[%15.15thread] %level %logger %msg%n</pattern>
