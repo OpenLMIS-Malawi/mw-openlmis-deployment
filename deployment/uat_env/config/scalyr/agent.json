@@ -22,8 +22,9 @@
   // Log files to upload to Scalyr. You can use '*' wildcards here.
   logs: [
     { path: "/var/log/nginx/log/access.log", attributes: {parser: "accessLog"} },
-    { path: "/var/log/nginx/log/error.log" } ,
-    { path: "/var/log/messages" },
+    { path: "/var/log/nginx/log/error.log" },
+    { path: "/var/log/messages*" },
+    { path: "/var/log/malawi*" }
   ],
 
   global_monitor_sample_interval: "5",
