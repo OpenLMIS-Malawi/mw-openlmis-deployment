@@ -41,7 +41,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:9.0.0
+    image: openlmis/referencedata:9.0.1
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -88,7 +88,7 @@ services:
     depends_on: [log]
 
   reports:
-    image: openlmismw/reports:1.5.0-SNAPSHOT
+    image: openlmismw/reports:1.6.0-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -XX:PermSize=256m -XX:MaxPermSize=512M -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
