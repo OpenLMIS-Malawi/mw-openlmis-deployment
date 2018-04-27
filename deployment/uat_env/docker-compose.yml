@@ -23,7 +23,7 @@ services:
     depends_on: [consul]
 
   ui:
-    image: openlmismw/ui:1.3.0-RC2
+    image: openlmismw/ui:1.3.0
     env_file: .env
     depends_on: [consul]
 
@@ -43,6 +43,7 @@ services:
     restart: always
     image: openlmis/referencedata:10.0.0
     env_file: .env
+
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
@@ -88,7 +89,7 @@ services:
     depends_on: [log]
 
   reports:
-    image: openlmismw/reports:1.6.0-RC1
+    image: openlmismw/reports:1.6.0
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -XX:PermSize=256m -XX:MaxPermSize=512M -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
