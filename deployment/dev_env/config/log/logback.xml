@@ -12,26 +12,6 @@
       <pattern>[%15.15thread] %level %logger %msg%n</pattern>
     </encoder>
   </appender>
-    <logger name="logging.level.org.hibernate.type" level="TRACE" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="logging.level.org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="logging.level.org.hibernate.SQL" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.springframework.transaction.interceptor" level="TRACE" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.springframework.transaction" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
     <logger name="org.openlmis.auth" level="WARN" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
