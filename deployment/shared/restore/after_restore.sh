@@ -22,4 +22,8 @@ UPDATE auth.oauth_client_details SET clientid = '${CLIENT_USERNAME}' WHERE clien
 EOF
 )
 
+echo "Executing clearing sensitive data!!!!"
+
 PGPASSWORD="${POSTGRES_PASSWORD}" psql ${URL} -U ${POSTGRES_USER} -c "$sql"
+
+echo "Done clearing sensitive data!!!!"
