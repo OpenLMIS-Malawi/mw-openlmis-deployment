@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export DOCKER_TLS_VERIFY="1"
-export DOCKER_HOST="malawi-dev-elb-2073520008.us-east-1.elb.amazonaws.com:2376"
+export DOCKER_HOST="malawi-prod-elb-270164566.eu-west-1.elb.amazonaws.com:2376"
 export DOCKER_CERT_PATH="${PWD}/../../credentials"
 
 ../shared/init_env.sh
