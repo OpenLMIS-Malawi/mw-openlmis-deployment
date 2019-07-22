@@ -3,8 +3,8 @@
 set -e
 export DOCKER_TLS_VERIFY="1"
 export COMPOSE_TLS_VERSION=TLSv1_2
-export DOCKER_HOST="lmis-nifi-registry.health.gov.mw:2376"
-export DOCKER_CERT_PATH="${PWD}/../../credentials"
+export DOCKER_HOST="malawi-prod-reporting-elb-896579144.eu-west-1.elb.amazonaws.com:2376"
+export DOCKER_CERT_PATH="${PWD}/../../../credentials"
 
 /usr/local/bin/docker-compose kill
 /usr/local/bin/docker-compose down -v
