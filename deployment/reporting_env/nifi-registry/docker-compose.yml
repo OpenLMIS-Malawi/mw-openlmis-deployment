@@ -7,16 +7,6 @@ services:
     volumes:
       - shared-config:/config
 
-  backup:
-    build:
-      context: ./s3-backup
-    volumes:
-      - registry-database:${BACKUP_DIRECTORY}/nifi-registry-database
-      - flow-storage:${BACKUP_DIRECTORY}/nifi-registry-persistence
-    env_file: settings.env
-    environment:
-      BACKUP_CRON_SCHEDULE: ${BACKUP_CRON_SCHEDULE}
-      BACKUP_DIRECTORY: ${BACKUP_DIRECTORY}
   scalyr:
     image: openlmis/scalyr:${OL_SCALYR_AGENT_VERSION}
     volumes:
@@ -26,6 +16,7 @@ services:
     env_file: settings.env
     environment:
       - VIRTUAL_HOST=${VIRTUAL_HOST}
+    depends_on: [log, shared-configuration]
 
   log:
     image: openlmis/rsyslog:${OL_RSYSLOG_VERSION}
@@ -40,22 +31,18 @@ services:
       - "${NIFI_REGISTRY_HTTP_PORT}:18080"
       - "${NIFI_REGISTRY_HTTPS_PORT}:18443"
     volumes:
-      - flow-storage:/opt/nifi-registry/nifi-registry-${OL_NIFI_REGISTRY_VERSION}/flow_storage:rw
-      - registry-database:/opt/nifi-registry/nifi-registry-${OL_NIFI_REGISTRY_VERSION}/database:rw
       - shared-config:/config
+    command: >
+      bash -c "cp -r /config/nifi-registry/* . &&
+          /opt/nifi-registry/scripts/start.sh"
     logging:
       driver: syslog
       options:
         syslog-address: "udp://127.0.0.1:${SYSLOG_UDP_PORT}"
-    depends_on: [log, backup, shared-configuration]
+    depends_on: [log, shared-configuration]
 
 volumes:
   syslog:
     external: false
   shared-config:
     external: false
-  registry-database:
-    external: false
-  flow-storage:
-    external: false
-
