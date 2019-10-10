@@ -29,7 +29,7 @@ services:
 
   requisition:
     restart: always
-    image: openlmis/requisition:8.2.0-RC1
+    image: openlmis/requisition:8.2.0-RC2
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -41,7 +41,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:14.0.0-RC1
+    image: openlmis/referencedata:14.0.0-RC2
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -99,7 +99,7 @@ services:
     depends_on: [log]
 
   stockmanagement:
-    image: openlmis/stockmanagement:5.0.0-RC1
+    image: openlmis/stockmanagement:5.0.0-RC2
     env_file: .env
     environment:
       JAVA_OPTS: '-Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
