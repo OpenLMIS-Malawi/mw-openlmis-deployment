@@ -13,30 +13,6 @@
         </encoder>
     </appender>
 
-    <logger name="org.openlmis.auth" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.notification" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.referencedata" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.requisition" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.stockmanagement" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.referencedata.util.Resource2Db" level="WARN" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
     <!-- Define the root logger log level -->
     <root level="WARN">
         <appender-ref ref="FILE"/>
