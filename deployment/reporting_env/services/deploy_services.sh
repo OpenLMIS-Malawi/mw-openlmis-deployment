@@ -10,6 +10,11 @@ export REPORTING_DIR_NAME=reporting
 
 reportingRepo=$1
 
+# To avoid running the whole ETL process, we need to create a volume for
+# Postgres data and mark it as external, so that Nifi can update already
+# persisted data.
+docker volume create pgdata
+
 cd "$reportingRepo/$REPORTING_DIR_NAME"
 $DOCKER_COMPOSE_BIN kill
 $DOCKER_COMPOSE_BIN down -v
