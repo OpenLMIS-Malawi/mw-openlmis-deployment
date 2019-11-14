@@ -131,9 +131,9 @@ services:
   hapifhir:
     image: openlmis/hapifhir:2.0.0
     env_file: .env
-    mem_limit: 512m
+    mem_limit: 768m
     environment:
-      JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx768m -Dlogging.config=/config/log/logback.xml'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
