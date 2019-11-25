@@ -83,9 +83,9 @@ services:
     restart: always
     image: openlmis/fulfillment:8.1.0
     env_file: .env
-    mem_limit: 512m
+    mem_limit: 1024m
     environment:
-      JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
@@ -107,9 +107,9 @@ services:
   stockmanagement:
     image: openlmis/stockmanagement:5.0.0
     env_file: .env
-    mem_limit: 1024m
+    mem_limit: 2048m
     environment:
-      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
@@ -119,9 +119,9 @@ services:
   hapifhir:
     image: openlmis/hapifhir:2.0.0
     env_file: .env
-    mem_limit: 1024m
+    mem_limit: 2048m
     environment:
-      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
