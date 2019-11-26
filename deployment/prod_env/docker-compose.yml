@@ -23,7 +23,7 @@ services:
     depends_on: [consul]
 
   ui:
-    image: openlmismw/ui-with-production-settings:1.5.3
+    image: openlmismw/ui-with-production-settings:1.5.4
     env_file: .env
     depends_on: [consul]
 
@@ -93,11 +93,23 @@ services:
     depends_on: [log]
 
   reports:
-    image: openlmismw/reports:2.0.1
+    image: openlmismw/reports:2.0.2
     env_file: .env
     mem_limit: 2048m
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      spring_profiles_active: ${spring_profiles_active}
+    volumes:
+      - 'service-config:/config'
+      - 'syslog:/var/log'
+    depends_on: [log]
+
+  dhis2-integration:
+    image: openlmismw/dhis2-integration:1.0.0
+    env_file: .env
+    mem_limit: 2048m
+    environment:
+      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
