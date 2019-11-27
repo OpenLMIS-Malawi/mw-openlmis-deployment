@@ -9,6 +9,7 @@
 : ${CLIENT_SECRET:?"Need to set CLIENT_SECRET"}
 : ${SERVICE_CLIENT_ID:?"Need to set SERVICE_CLIENT_ID"}
 : ${SERVICE_CLIENT_SECRET:?"Need to set SERVICE_CLIENT_SECRET"}
+: ${SUPERSET_SECRET:?"Need to set SUPERSET_SECRET"}
 
 URL=`echo ${DATABASE_URL} | sed -E 's/^jdbc\:(.+)/\1/'` # jdbc:<url>
 : "${URL:?URL not parsed}"
@@ -19,6 +20,7 @@ UPDATE notification.user_contact_details SET email = NULL;
 UPDATE auth.oauth_client_details SET clientid = '${SERVICE_CLIENT_ID}', clientsecret = '${SERVICE_CLIENT_SECRET}' WHERE clientid = 'production-service-client';
 UPDATE auth.oauth_client_details SET clientsecret = '${CLIENT_SECRET}' WHERE clientid = 'malawi-client';
 UPDATE auth.oauth_client_details SET clientid = '${CLIENT_USERNAME}' WHERE clientid = 'malawi-client';
+UPDATE auth.oauth_client_details SET clientsecret = '${SUPERSET_SECRET}' WHERE clientid = 'superset';
 EOF
 )
 
