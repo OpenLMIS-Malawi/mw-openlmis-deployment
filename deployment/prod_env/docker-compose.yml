@@ -107,9 +107,9 @@ services:
   dhis2-integration:
     image: openlmismw/dhis2-integration:1.0.0
     env_file: .env
-    mem_limit: 1536m
+    mem_limit: 2048m
     environment:
-      JAVA_OPTS: '-server -Xmx1536m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
