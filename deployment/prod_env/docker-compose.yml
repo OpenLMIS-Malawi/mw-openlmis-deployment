@@ -31,9 +31,9 @@ services:
     restart: always
     image: openlmis/requisition:8.2.0
     env_file: .env
-    mem_limit: 2048m
+    mem_limit: 2560m
     environment:
-      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx2560m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
