@@ -10,6 +10,7 @@
 : ${SERVICE_CLIENT_ID:?"Need to set SERVICE_CLIENT_ID"}
 : ${SERVICE_CLIENT_SECRET:?"Need to set SERVICE_CLIENT_SECRET"}
 : ${SUPERSET_SECRET:?"Need to set SUPERSET_SECRET"}
+: ${CLIENT_REDIRECT_URI:?"Need to set CLIENT_REDIRECT_URI"}
 
 URL=`echo ${DATABASE_URL} | sed -E 's/^jdbc\:(.+)/\1/'` # jdbc:<url>
 : "${URL:?URL not parsed}"
@@ -21,6 +22,8 @@ UPDATE auth.oauth_client_details SET clientid = '${SERVICE_CLIENT_ID}', clientse
 UPDATE auth.oauth_client_details SET clientsecret = '${CLIENT_SECRET}' WHERE clientid = 'malawi-client';
 UPDATE auth.oauth_client_details SET clientid = '${CLIENT_USERNAME}' WHERE clientid = 'malawi-client';
 UPDATE auth.oauth_client_details SET clientsecret = '${SUPERSET_SECRET}' WHERE clientid = 'superset';
+UPDATE auth.oauth_client_details SET redirecturi = '${CLIENT_REDIRECT_URI}' WHERE clientid = 'superset';
+
 EOF
 )
 
