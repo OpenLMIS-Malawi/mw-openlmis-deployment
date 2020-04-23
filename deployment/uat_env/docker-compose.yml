@@ -124,7 +124,7 @@ services:
     image: openlmis/hapifhir:2.0.0
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx2560m -Dlogging.config=/config/log/logback.xml'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
