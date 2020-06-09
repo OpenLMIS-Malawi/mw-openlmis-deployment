@@ -88,7 +88,7 @@ services:
     depends_on: [log]
 
   reports:
-    image: openlmismw/reports:2.0.4-SNAPSHOT
+    image: openlmismw/reports:2.0.5-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
