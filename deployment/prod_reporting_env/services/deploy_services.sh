@@ -18,4 +18,5 @@ docker volume create pgdata
 cd "$reportingRepo/$REPORTING_DIR_NAME"
 $DOCKER_COMPOSE_BIN kill
 $DOCKER_COMPOSE_BIN down -v
-$DOCKER_COMPOSE_BIN up --build --force-recreate -d
+$DOCKER_COMPOSE_BIN build --no-cache
+$DOCKER_COMPOSE_BIN up --force-recreate -d
