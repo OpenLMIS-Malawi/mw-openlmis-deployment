@@ -20,6 +20,10 @@
         <appender-ref ref="FILE"/>
     </logger>
 
+    <logger name="org.openlmis.fulfillment" level="WARN" additivity="false">
+      <appender-ref ref="FILE"/>
+    </logger>
+
     <logger name="org.openlmis.referencedata" level="WARN" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
