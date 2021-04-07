@@ -12,19 +12,19 @@
       <pattern>[%15.15thread] %level %logger %msg%n</pattern>
     </encoder>
   </appender>
-    <logger name="org.openlmis.auth" level="WARN" additivity="false">
+    <logger name="org.openlmis.auth" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="org.openlmis.notification" level="WARN" additivity="false">
+    <logger name="org.openlmis.notification" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="org.openlmis.fulfillment" level="WARN" additivity="false">
+    <logger name="org.openlmis.fulfillment" level="DEBUG" additivity="false">
       <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="org.openlmis.referencedata" level="WARN" additivity="false">
+    <logger name="org.openlmis.referencedata" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
 
@@ -32,7 +32,7 @@
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="org.openlmis.stockmanagement" level="WARN" additivity="false">
+    <logger name="org.openlmis.stockmanagement" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
 
