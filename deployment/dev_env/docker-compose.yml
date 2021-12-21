@@ -99,7 +99,7 @@ services:
     depends_on: [log]
 
   dhis2-integration:
-    image: openlmismw/dhis2-integration:1.0.3
+    image: openlmismw/dhis2-integration:1.0.4-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
