@@ -112,7 +112,7 @@ services:
       - consul
 
   scalyr:
-    image: openlmis/scalyr
+    image: openlmis/scalyr:2.1.34-alpine
     container_name: scalyr-agent
     env_file: .env
     volumes:
