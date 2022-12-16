@@ -23,7 +23,7 @@ services:
     depends_on: [consul]
 
   ui:
-    image: openlmismw/ui-with-production-settings:1.6.6
+    image: openlmismw/ui-with-production-settings:1.6.7
     env_file: .env
     depends_on: [consul]
 
@@ -42,7 +42,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:15.2.3
+    image: openlmis/referencedata:15.2.4
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2560m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration -XX:+CrashOnOutOfMemoryError'
@@ -81,7 +81,7 @@ services:
 
   fulfillment:
     restart: always
-    image: openlmis/fulfillment:9.0.3
+    image: openlmis/fulfillment:9.0.4
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx768m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration -XX:+CrashOnOutOfMemoryError'
@@ -93,7 +93,7 @@ services:
     restart: on-failure
 
   reports:
-    image: openlmismw/reports:2.1.4
+    image: openlmismw/reports:2.1.5
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration -XX:+CrashOnOutOfMemoryError'
@@ -117,7 +117,7 @@ services:
     restart: on-failure
 
   stockmanagement:
-    image: openlmis/stockmanagement:5.1.6
+    image: openlmis/stockmanagement:5.1.7
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration -XX:+CrashOnOutOfMemoryError'
