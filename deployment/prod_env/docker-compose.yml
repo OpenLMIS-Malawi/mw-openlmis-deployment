@@ -142,7 +142,7 @@ services:
 
   log:
     restart: always
-    image: openlmis/rsyslog:1
+    image: openlmis/rsyslog:2
     volumes:
       - 'syslog:/var/log'
     depends_on:
