@@ -23,7 +23,7 @@ services:
     depends_on: [consul]
 
   ui:
-    image: openlmismw/ui:1.6.10-SNAPSHOT
+    image: openlmismw/ui:1.6.11-SNAPSHOT
     env_file: .env
     depends_on: [consul]
 
