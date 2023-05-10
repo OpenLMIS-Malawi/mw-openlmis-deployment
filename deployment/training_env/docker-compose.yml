@@ -1,12 +1,5 @@
 version: "2"
 
-x-logging:
-  &default-logging
-  driver: json-file
-  options:
-    max-size: "50m"
-    max-file: "7"
-
 services:
 
   consul:
@@ -17,7 +10,11 @@ services:
       - "8400"
       - "8500:8500"
       - "53"
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   nginx:
     image: openlmis/nginx:latest
@@ -30,13 +27,21 @@ services:
       - 'nginx-log:/var/log/nginx/log'
       - 'consul-template-log:/var/log/consul-template'
     depends_on: [consul]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   ui:
     image: openlmismw/ui:1.2.0-SNAPSHOT
     env_file: .env
     depends_on: [consul]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   requisition:
     restart: always
@@ -48,7 +53,11 @@ services:
     volumes:
       - 'service-config:/config'
     depends_on: [log]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   referencedata:
     restart: always
@@ -60,7 +69,11 @@ services:
     volumes:
       - 'service-config:/config'
     depends_on: [log]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   auth:
     restart: always
@@ -72,7 +85,11 @@ services:
     volumes:
       - 'service-config:/config'
     depends_on: [log]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   notification:
     restart: always
@@ -84,7 +101,11 @@ services:
     volumes:
       - 'service-config:/config'
     depends_on: [log]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   fulfillment:
     restart: always
@@ -96,7 +117,11 @@ services:
     volumes:
       - 'service-config:/config'
     depends_on: [log]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   reports:
     image: openlmismw/reports:1.2.0-SNAPSHOT
@@ -107,7 +132,11 @@ services:
     volumes:
       - 'service-config:/config'
     depends_on: [log]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   stockmanagement:
     image: openlmis/stockmanagement:1.0.0
@@ -118,7 +147,11 @@ services:
     volumes:
       - 'service-config:/config'
     depends_on: [log]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   log:
     restart: always
@@ -128,7 +161,11 @@ services:
     depends_on:
       - service-configuration
       - consul
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   scalyr:
     image: openlmis/scalyr:2.1.34-alpine
@@ -139,14 +176,22 @@ services:
       - '/run/docker.sock:/var/scalyr/docker.sock'
       - 'syslog:/var/log'
       - 'nginx-log:/var/log/nginx/log'
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   service-configuration:
     build:
       context: ./config
     volumes:
       - service-config:/config
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
 volumes:
   syslog:
