@@ -1,19 +1,16 @@
 version: "3.3"
 
-x-logging:
-  &default-logging
-  driver: json-file
-  options:
-    max-size: "50m"
-    max-file: "7"
-
 services:
   shared-configuration:
     build:
       context: ./config
     volumes:
       - shared-config:/config
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   scalyr:
     image: openlmis/scalyr:${OL_SCALYR_AGENT_VERSION}
@@ -25,7 +22,11 @@ services:
     environment:
       - VIRTUAL_HOST=${VIRTUAL_HOST}
     depends_on: [log, shared-configuration]
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   log:
     image: openlmis/rsyslog:${OL_RSYSLOG_VERSION}
@@ -33,7 +34,11 @@ services:
       - syslog:/var/log
     ports:
       - "${SYSLOG_UDP_PORT}:514/udp"
-    logging: *default-logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "7"
 
   nifi-registry:
     image: apache/nifi-registry:${OL_NIFI_REGISTRY_VERSION}
@@ -50,7 +55,6 @@ services:
       options:
         syslog-address: "udp://127.0.0.1:${SYSLOG_UDP_PORT}"
     depends_on: [log, shared-configuration]
-    logging: *default-logging
 
 volumes:
   syslog:
