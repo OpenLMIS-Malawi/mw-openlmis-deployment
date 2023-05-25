@@ -10,7 +10,7 @@ services:
       - "8400"
       - "8500:8500"
       - "53"
-    logging:
+    logging: &logging
       driver: json-file
       options:
         max-size: "50m"
@@ -28,20 +28,14 @@ services:
       - 'consul-template-log:/var/log/consul-template'
     depends_on: [consul]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   ui:
     image: openlmismw/ui:1.6.11-SNAPSHOT
     env_file: .env
     depends_on: [consul]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   requisition:
     restart: always
@@ -55,10 +49,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   referencedata:
     restart: always
@@ -72,10 +63,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   auth:
     restart: always
@@ -89,10 +77,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   notification:
     restart: always
@@ -106,10 +91,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   fulfillment:
     restart: always
@@ -123,10 +105,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   reports:
     image: openlmismw/reports:2.1.8-SNAPSHOT
@@ -139,10 +118,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   dhis2-integration:
     image: openlmismw/dhis2-integration:1.0.4
@@ -155,10 +131,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   stockmanagement:
     image: openlmis/stockmanagement:5.1.6
@@ -171,10 +144,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   hapifhir:
     image: openlmis/hapifhir:2.0.2
@@ -187,10 +157,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   log:
     restart: always
@@ -201,10 +168,7 @@ services:
       - service-configuration
       - consul
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   redis:
     image: redis:3.2.12
@@ -220,10 +184,7 @@ services:
       - 'syslog:/var/log'
       - 'nginx-log:/var/log/nginx/log'
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
   service-configuration:
     build:
@@ -231,10 +192,7 @@ services:
     volumes:
       - service-config:/config
     logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "7"
+      <<: *logging
 
 volumes:
   syslog:
