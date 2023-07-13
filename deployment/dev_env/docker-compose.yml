@@ -33,7 +33,7 @@ services:
     logging: *default-logging
 
   ui:
-    image: openlmismw/ui:1.6.13-SNAPSHOT
+    image: openlmismw/ui:1.6.10
     env_file: .env
     depends_on: [consul]
     logging: *default-logging
@@ -53,7 +53,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:15.2.3
+    image: openlmis/referencedata:15.2.4
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -92,7 +92,7 @@ services:
 
   fulfillment:
     restart: always
-    image: openlmis/fulfillment:9.0.3
+    image: openlmis/fulfillment:9.0.4
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -128,7 +128,7 @@ services:
     logging: *default-logging
 
   stockmanagement:
-    image: openlmis/stockmanagement:5.1.6
+    image: openlmis/stockmanagement:5.1.7
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
