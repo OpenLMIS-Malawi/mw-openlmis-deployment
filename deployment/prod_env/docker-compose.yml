@@ -112,7 +112,7 @@ services:
     image: openlmismw/reports:2.1.9
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx4096m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration -XX:+CrashOnOutOfMemoryError'
+      JAVA_OPTS: '-server -Xmx3584m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration -XX:+CrashOnOutOfMemoryError'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
