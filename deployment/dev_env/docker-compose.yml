@@ -114,6 +114,7 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging: *default-logging
+    mem_limit: 4096m
 
   dhis2-integration:
     image: openlmismw/dhis2-integration:1.0.4
