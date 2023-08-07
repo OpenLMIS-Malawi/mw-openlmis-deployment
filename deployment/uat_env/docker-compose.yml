@@ -43,7 +43,7 @@ services:
     image: openlmis/requisition:8.3.4
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
@@ -56,7 +56,7 @@ services:
     image: openlmis/referencedata:15.2.4
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx2560m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
@@ -69,7 +69,7 @@ services:
     image: openlmis/auth:4.3.3
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx768m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
@@ -95,7 +95,7 @@ services:
     image: openlmis/fulfillment:9.0.4
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx768m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
@@ -143,7 +143,7 @@ services:
     image: openlmis/hapifhir:2.0.2
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx2560m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
