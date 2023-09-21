@@ -13,19 +13,6 @@
         </encoder>
     </appender>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level  %logger{36} - %msg%n</pattern>
-        </encoder>
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-                <marker>PROFILER</marker>
-            </evaluator>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
-    </appender>
-
     <logger name="org.openlmis.auth" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
@@ -38,8 +25,8 @@
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="org.openlmis.requisition" level="TRACE" additivity="false">
-        <appender-ref ref="STDOUT"/>
+    <logger name="org.openlmis.requisition" level="DEBUG" additivity="false">
+        <appender-ref ref="FILE"/>
     </logger>
 
     <logger name="org.openlmis.stockmanagement" level="DEBUG" additivity="false">
