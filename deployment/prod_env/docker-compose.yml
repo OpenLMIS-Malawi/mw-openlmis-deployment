@@ -33,7 +33,7 @@ services:
     logging: *default-logging
 
   ui:
-    image: openlmismw/ui-with-production-settings:1.6.13
+    image: openlmismw/ui-with-production-settings:1.6.14
     env_file: .env
     depends_on: [consul]
     logging: *default-logging
@@ -109,7 +109,7 @@ services:
     logging: *default-logging
 
   reports:
-    image: openlmismw/reports:2.1.10
+    image: openlmismw/reports:2.1.11
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3584m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration -XX:+CrashOnOutOfMemoryError'
