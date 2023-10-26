@@ -104,7 +104,7 @@ services:
     logging: *default-logging
 
   reports:
-    image: openlmismw/reports:2.1.10
+    image: openlmismw/reports:2.1.12-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3584m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
