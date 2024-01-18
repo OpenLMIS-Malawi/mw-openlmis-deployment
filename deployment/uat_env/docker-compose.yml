@@ -33,7 +33,7 @@ services:
     logging: *default-logging
 
   ui:
-    image: openlmismw/ui:1.6.16-SNAPSHOT
+    image: openlmismw/ui:1.6.17-SNAPSHOT
     env_file: .env
     depends_on: [consul]
     logging: *default-logging
@@ -105,7 +105,7 @@ services:
 
   reports:
     restart: always
-    image: openlmismw/reports:2.1.13-SNAPSHOT
+    image: openlmismw/reports:2.1.14-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx6144m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
