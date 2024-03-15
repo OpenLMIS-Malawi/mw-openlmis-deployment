@@ -33,7 +33,7 @@ services:
     logging: *default-logging
 
   ui:
-    image: openlmismw/ui:1.6.18-SNAPSHOT
+    image: openlmismw/ui-with-production-settings:1.6.17
     env_file: .env
     depends_on: [consul]
     logging: *default-logging
