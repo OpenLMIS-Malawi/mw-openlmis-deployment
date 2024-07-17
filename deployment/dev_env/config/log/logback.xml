@@ -28,7 +28,7 @@
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="org.openlmis.requisition" level="WARN" additivity="false">
+    <logger name="org.openlmis.requisition" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
     </logger>
 
@@ -37,10 +37,6 @@
     </logger>
 
     <logger name="org.openlmis.integration.dhis2" level="WARN" additivity="false">
-      <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.buq" level="WARN" additivity="false">
       <appender-ref ref="FILE"/>
     </logger>
 

@@ -33,14 +33,14 @@ services:
     logging: *default-logging
 
   ui:
-    image: openlmismw/ui:1.6.18-RC1
+    image: openlmismw/ui:1.6.17
     env_file: .env
     depends_on: [consul]
     logging: *default-logging
 
   requisition:
     restart: always
-    image: openlmis/requisition:8.3.8
+    image: openlmis/requisition:8.3.6
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -53,7 +53,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:15.2.6
+    image: openlmis/referencedata:15.2.5
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2560m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -92,7 +92,7 @@ services:
 
   fulfillment:
     restart: always
-    image: openlmis/fulfillment:9.0.5
+    image: openlmis/fulfillment:9.0.4
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx768m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -131,7 +131,7 @@ services:
 
   stockmanagement:
     restart: always
-    image: openlmis/stockmanagement:5.1.10
+    image: openlmis/stockmanagement:5.1.9
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -155,19 +155,6 @@ services:
     depends_on: [log]
     logging: *default-logging
 
-  buq:
-    restart: always
-    image: openlmis/buq:1.0.0
-    env_file: .env
-    environment:
-      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
-      spring_profiles_active: ${spring_profiles_active}
-    volumes:
-      - 'service-config:/config'
-      - 'syslog:/var/log'
-    depends_on: [ log ]
-    logging: *default-logging
-
   log:
     restart: always
     image: openlmis/rsyslog:2
@@ -177,10 +164,6 @@ services:
       - service-configuration
       - consul
     logging: *default-logging
-
-  redis:
-    image: redis:3.2.12
-    depends_on: [consul]
 
   scalyr:
     image: openlmis/scalyr:2.1.34-alpine
@@ -199,6 +182,10 @@ services:
     volumes:
       - service-config:/config
     logging: *default-logging
+
+  redis:
+    image: redis:3.2.12
+    depends_on: [ consul ]
 
 volumes:
   syslog:
