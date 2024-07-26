@@ -15,6 +15,7 @@
 
   <!-- Profiler File Appender -->
   <appender name="PROFILER_FILE" class="ch.qos.logback.core.FileAppender">
+    <prudent>true</prudent>
     <file>/var/log/profiler.log</file>
     <append>true</append>
     <encoder>
@@ -45,13 +46,14 @@
       <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="org.openlmis.requisition" level="TRACE" additivity="false">
+    <logger name="org.openlmis.requisition" level="DEBUG" additivity="false">
       <appender-ref ref="FILE"/>
       <appender-ref ref="PROFILER_FILE"/>
     </logger>
 
-    <logger name="org.openlmis.stockmanagement" level="WARN" additivity="false">
+    <logger name="org.openlmis.stockmanagement" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="PROFILER_FILE"/>
     </logger>
 
     <logger name="org.openlmis.integration.dhis2" level="WARN" additivity="false">
