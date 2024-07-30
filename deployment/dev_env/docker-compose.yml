@@ -50,8 +50,6 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging: *default-logging
-    sysctls:
-      - net.ipv4.tcp_keepalive_time=120
 
   referencedata:
     restart: always
