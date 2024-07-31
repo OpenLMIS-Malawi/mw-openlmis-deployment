@@ -46,7 +46,7 @@ services:
 
   requisition:
     restart: always
-    image: openlmis/requisition:8.3.6-hotfix.1
+    image: openlmis/requisition:8.3.6-hotfix.2
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
