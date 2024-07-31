@@ -58,6 +58,8 @@ services:
     logging: *default-logging
     extra_hosts:
       - "lmis-dev.health.gov.mw:72.44.54.122"
+    sysctls:
+      - net.ipv4.tcp_keepalive_time=120
 
   referencedata:
     restart: always
