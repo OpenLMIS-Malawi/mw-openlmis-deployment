@@ -1,4 +1,4 @@
-version: "3.7"
+version: "2"
 
 x-logging:
   &default-logging
@@ -40,7 +40,7 @@ services:
 
   requisition:
     restart: always
-    image: openlmis/requisition:8.3.6-hotfix.4
+    image: openlmis/requisition:8.3.6-hotfix.1
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -50,8 +50,6 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging: *default-logging
-    sysctls:
-      - net.ipv4.tcp_keepalive_time=120
 
   referencedata:
     restart: always
@@ -133,7 +131,7 @@ services:
 
   stockmanagement:
     restart: always
-    image: openlmis/stockmanagement:5.1.9.hotfix.2
+    image: openlmis/stockmanagement:5.1.9
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -143,8 +141,6 @@ services:
       - 'syslog:/var/log'
     depends_on: [log]
     logging: *default-logging
-    sysctls:
-      - net.ipv4.tcp_keepalive_time=120
 
   hapifhir:
     restart: always
