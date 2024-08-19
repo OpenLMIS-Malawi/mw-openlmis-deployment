@@ -13,55 +13,8 @@
     </encoder>
   </appender>
 
-  <!-- Profiler File Appender -->
-  <appender name="PROFILER_FILE" class="ch.qos.logback.core.FileAppender">
-    <prudent>true</prudent>
-    <file>/var/log/profiler.log</file>
-    <append>true</append>
-    <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-    </encoder>
-    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-      <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
-        <marker>PROFILER</marker>
-      </evaluator>
-      <onMatch>ACCEPT</onMatch>
-      <onMismatch>DENY</onMismatch>
-    </filter>
-  </appender>
-
-    <logger name="org.openlmis.auth" level="WARN" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.notification" level="WARN" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.fulfillment" level="WARN" additivity="false">
-      <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.referencedata" level="WARN" additivity="false">
-      <appender-ref ref="FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.requisition" level="DEBUG" additivity="false">
-      <appender-ref ref="FILE"/>
-      <appender-ref ref="PROFILER_FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.stockmanagement" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="PROFILER_FILE"/>
-    </logger>
-
-    <logger name="org.openlmis.integration.dhis2" level="WARN" additivity="false">
-      <appender-ref ref="FILE"/>
-    </logger>
-
-    <!-- Define the root logger log level -->
-    <root level="WARN">
-        <appender-ref ref="FILE"/>
-    </root>
+  <!-- Define the root logger log level -->
+  <root level="WARN">
+    <appender-ref ref="FILE"/>
+  </root>
 </configuration>
