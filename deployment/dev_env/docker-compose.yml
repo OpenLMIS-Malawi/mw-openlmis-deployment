@@ -53,7 +53,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:15.2.6
+    image: openlmis/referencedata:15.2.7
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2560m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -131,7 +131,7 @@ services:
 
   stockmanagement:
     restart: always
-    image: openlmis/stockmanagement:5.1.10
+    image: openlmis/stockmanagement:5.1.12
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
