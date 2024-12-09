@@ -105,7 +105,7 @@ services:
 
   reports:
     restart: always
-    image: openlmismw/reports:2.1.15
+    image: openlmismw/reports:2.1.16-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3584m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -142,12 +142,12 @@ services:
     depends_on: [log]
     logging: *default-logging
 
-  hapifhir:
+  buq:
     restart: always
-    image: openlmis/hapifhir:2.0.2
+    image: openlmis/buq:1.0.0
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml'
+      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
@@ -155,12 +155,12 @@ services:
     depends_on: [log]
     logging: *default-logging
 
-  buq:
+  hapifhir:
     restart: always
-    image: openlmis/buq:1.0.0
+    image: openlmis/hapifhir:2.0.2
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
@@ -198,7 +198,7 @@ services:
 
   redis:
     image: redis:3.2.12
-    depends_on: [ consul ]
+    depends_on: [consul]
 
 volumes:
   syslog:
