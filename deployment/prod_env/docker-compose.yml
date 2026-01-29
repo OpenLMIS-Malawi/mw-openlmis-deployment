@@ -20,7 +20,7 @@ services:
     logging: *default-logging
 
   nginx:
-    image: openlmis/nginx:4
+    image: openlmis/nginx:6
     ports:
       - "80:80"
     env_file: .env
@@ -33,7 +33,7 @@ services:
     logging: *default-logging
 
   ui:
-    image: openlmismw/ui-with-production-settings:1.6.18
+    image: openlmismw/ui-with-production-settings:1.7.0
     env_file: .env
     depends_on: [consul]
     logging: *default-logging
@@ -53,7 +53,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:15.2.7
+    image: openlmis/referencedata:15.3.0-hotfix
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -66,7 +66,7 @@ services:
 
   auth:
     restart: always
-    image: openlmis/auth:4.3.3
+    image: openlmis/auth:4.3.5
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx1536m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -79,7 +79,7 @@ services:
 
   notification:
     restart: always
-    image: openlmis/notification:4.3.3
+    image: openlmis/notification:4.3.5
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
@@ -92,7 +92,7 @@ services:
 
   fulfillment:
     restart: always
-    image: openlmis/fulfillment:9.0.5
+    image: openlmis/fulfillment:9.2.0
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -105,7 +105,7 @@ services:
 
   reports:
     restart: always
-    image: openlmismw/reports:2.1.15
+    image: openlmismw/reports:2.1.16
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx6144m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -131,7 +131,7 @@ services:
 
   stockmanagement:
     restart: always
-    image: openlmis/stockmanagement:5.1.12
+    image: openlmis/stockmanagement:5.2.0
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -144,7 +144,7 @@ services:
 
   buq:
     restart: always
-    image: openlmis/buq:1.0.0
+    image: openlmis/buq:1.0.2
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -157,7 +157,7 @@ services:
 
   hapifhir:
     restart: always
-    image: openlmis/hapifhir:2.0.2
+    image: openlmis/hapifhir:2.0.4
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml'
@@ -197,8 +197,8 @@ services:
     logging: *default-logging
 
   redis:
-      image: redis:3.2.12
-      depends_on: [consul]
+    image: redis:3.2.12
+    depends_on: [consul]
 
 volumes:
   syslog:
