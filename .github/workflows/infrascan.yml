@@ -1,0 +1,41 @@
+# Example GitHub Actions workflow for InfraScan
+# Copy this to .github/workflows/infrascan.yml
+#
+# This workflow runs a comprehensive scan on every push and pull request.
+# It is set to 'Monitoring Mode' (won't fail the build).
+# To enable 'Enforcement Mode', add --fail-on high_critical to the infrascan command.
+
+name: InfraScan Audit
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  infrascan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Reports Directory
+        run: |
+          mkdir -p infrascan-reports
+          chmod 777 infrascan-reports
+
+      - name: Run InfraScan
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/scan \
+            soldevelo/infrascan:latest \
+            --scanner comprehensive \
+            --format html \
+            --out /scan/infrascan-reports/report.html
+            
+      - name: Upload InfraScan Report
+        uses: actions/upload-artifact@v4
+        if: always() # Upload report even if the scan step fails
+        with:
+          name: infrascan-report
+          path: infrascan-reports/report.html
+          retention-days: 14
