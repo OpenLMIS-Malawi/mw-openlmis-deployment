@@ -1,4 +1,7 @@
 # openlmis-deployment
+
+[![Verified by InfraScan](https://img.shields.io/badge/Verified_by-SolDevelo_InfraScan-0052cc?style=flat&logo=security)](https://github.com/soldevelo/infrascan)
+
 Scripts for provisioning and deployment of OpenLMIS v3.  This repository holds specific tools for managing OpenLMIS test (CI)
 and UAT deployments, as well as lays out a general recipe for deploying OpenLMIS.
 
