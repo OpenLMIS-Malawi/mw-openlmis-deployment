@@ -30,7 +30,10 @@ export DOCKER_CERT_PATH="${PWD}/../../credentials"
 
 /usr/local/bin/docker-compose pull
 
-../shared/restart_or_restore.sh $1
+# $1 is vestigial (restart_or_restore.sh + restart.sh key off the KEEP_OR_WIPE
+# env var, not this arg). Default it so `set -u` doesn't abort when Jenkins
+# invokes the script with no positional argument.
+../shared/restart_or_restore.sh "${1:-}"
 
 # =============================================================================
 # 2. Reporting-stack deploy on the same Docker host
