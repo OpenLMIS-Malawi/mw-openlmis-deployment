@@ -46,12 +46,20 @@ if [ "${SKIP_REPORTING_STACK:-0}" = "1" ]; then
   exit 0
 fi
 
-REPORTING_REPO_LOCAL="${REPORTING_REPO_LOCAL:-${PWD}/../../../openlmis-reporting}"
+# All Jenkins SCMs check out UNDER the workspace root:
+#   mw-openlmis-deployment  -> workspace root (no subdir; this repo)
+#   malawi-configuration    -> ./credentials  (subdir)
+#   soldevelo-reporting-stack -> ./openlmis-reporting (subdir)
+# $WORKSPACE is always set by Jenkins. The fallback derives the workspace root
+# from this script's location (deployment/dev_env -> repo root == workspace root).
+WORKSPACE_ROOT="${WORKSPACE:-$(cd "${PWD}/../.." && pwd)}"
+
+REPORTING_REPO_LOCAL="${REPORTING_REPO_LOCAL:-${WORKSPACE_ROOT}/openlmis-reporting}"
 REPORTING_REMOTE_HOST="${REPORTING_REMOTE_HOST:-lmis-dev.health.gov.mw}"
 REPORTING_REMOTE_USER="${REPORTING_REMOTE_USER:-ubuntu}"
 REPORTING_REMOTE_PATH="${REPORTING_REMOTE_PATH:-/opt/reporting-stack}"
 
-CREDENTIALS_DIR="${PWD}/../../credentials"
+CREDENTIALS_DIR="${WORKSPACE_ROOT}/credentials"
 SSH_KEY="${CREDENTIALS_DIR}/id_rsa"
 ENV_REPORTING="${CREDENTIALS_DIR}/.env.reporting-stack"
 

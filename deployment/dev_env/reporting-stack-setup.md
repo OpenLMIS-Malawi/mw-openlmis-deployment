@@ -47,36 +47,147 @@ parameter on the clone — leave the original job intact for fallback.
 
 ---
 
-## Step 0 — Prerequisites on `lmis-dev.health.gov.mw`
+## Step 0 — Host prep (one-time, per instance)
 
-One-time setup on the OLMIS dev EC2 instance.
+These steps prepare a Malawi OLMIS host to also run the reporting-stack. They
+are **repeatable** — run them on any target (dev/uat/prod or a fresh box). All
+commands are idempotent and safe to re-run.
 
-1. **Verify resources.** ~6 GB RAM and ~2 vCPU headroom on top of OLMIS:
-   ```
-   ssh ubuntu@lmis-dev.health.gov.mw 'free -h && nproc'
-   ```
-   If headroom is tight, bump the instance type before proceeding.
+> **Context — what the dev box looked like (2026-05-27).** `lmis-dev` is an AWS
+> `r5.large` (2 vCPU / 16 GB), Ubuntu 16.04 (Xenial, EOL), Docker `19.03.5`
+> installed from download.docker.com, OLMIS running as 16 `dev_env_*`
+> containers via compose **v1** over remote TLS. The procedure below was shaped
+> by that environment; notes call out where a newer OS lets you take a shortcut.
 
-2. **Install Docker Compose v2 plugin.** The openlmis-reporting Makefile uses
-   `docker compose` (v2 plugin), not `docker-compose` (v1 binary). Check:
-   ```
-   ssh ubuntu@lmis-dev.health.gov.mw 'docker compose version'
-   ```
-   If missing, install per the Docker docs. The existing OLMIS deploy keeps
-   working with the v1 binary at `/usr/local/bin/docker-compose` — both can
-   coexist.
+Connect with the deployment SSH key (from `malawi-configuration`). The key
+arrives from git at mode 0664 — chmod it before use:
 
-3. **Verify `make` and `rsync` are installed:**
-   ```
-   ssh ubuntu@lmis-dev.health.gov.mw 'which make rsync git'
-   ```
+```bash
+chmod 600 malawi-configuration/id_rsa
+ssh -i malawi-configuration/id_rsa ubuntu@<host>     # e.g. lmis-dev.health.gov.mw
+```
 
-4. **Create the deploy target directory:**
-   ```
-   ssh ubuntu@lmis-dev.health.gov.mw 'sudo mkdir -p /opt/reporting-stack && sudo chown ubuntu:ubuntu /opt/reporting-stack'
-   ```
-   The deploy script does this automatically, but doing it manually first
-   surfaces any sudo / permission issues outside a Jenkins run.
+### 0a. Verify capacity
+
+```bash
+ssh -i malawi-configuration/id_rsa ubuntu@<host> '
+  curl -s http://169.254.169.254/latest/meta-data/instance-type; echo
+  nproc; free -h; df -h /
+  sudo docker ps --format "{{.Names}}" | wc -l   # OLMIS containers already running
+'
+```
+
+Budget ~4–5 GB RAM and meaningful CPU for the reporting-stack on top of OLMIS.
+On `r5.large` (2 vCPU) it runs but the initial snapshot + dbt builds are slow.
+If the workload proves CPU-bound in practice, resize the instance
+(`r5.large` → `r5.xlarge` doubles vCPU+RAM) — note a resize needs a
+stop/start, so confirm an Elastic IP / ELB keeps the DNS name stable first.
+
+### 0b. Verify base tooling
+
+```bash
+ssh -i malawi-configuration/id_rsa ubuntu@<host> 'command -v make rsync git docker'
+```
+
+All four are present on a standard OLMIS host. `make`, `rsync`, `git` are used
+by the deploy script; `docker` is the engine.
+
+### 0c. Install Docker Compose v2 (standalone plugin binary)
+
+The Makefile uses `docker compose` (v2). On Xenial the `docker-compose-plugin`
+apt package is **not available**, so install the binary directly — one
+self-contained file, no apt, cannot restart the daemon (OLMIS is untouched).
+The old v1 binary at `/usr/local/bin/docker-compose` (used by the OLMIS deploy)
+is left in place; both coexist.
+
+```bash
+ssh -i malawi-configuration/id_rsa ubuntu@<host> '
+  set -e
+  VER=v2.21.0   # conservative release; confirmed working against Docker 19.03 (API 1.40)
+  ARCH=$(uname -m)
+  URL="https://github.com/docker/compose/releases/download/${VER}/docker-compose-linux-${ARCH}"
+  sudo mkdir -p /usr/local/lib/docker/cli-plugins
+  sudo curl -fSL "$URL" -o /usr/local/lib/docker/cli-plugins/docker-compose
+  sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+  docker compose version
+'
+```
+
+> On a modern OS (Ubuntu 20.04+ with the Docker apt repo configured) you can
+> instead `sudo apt-get install -y docker-compose-plugin`. The binary method
+> above is the universal fallback and is what dev uses.
+
+> **Why v2.21.0:** Compose v2 negotiates the Docker API down to the daemon's
+> version, so even this old `19.03.5` engine works. v2.21.0 (Sept 2023) is a
+> conservative, well-tested pin — verified in 0f below.
+
+### 0d. Give the deploy user Docker socket access
+
+The deploy script runs `make up` over SSH **as `ubuntu`** (unlike the OLMIS
+deploy, which talks to the daemon remotely over TLS). `ubuntu` therefore needs
+the `docker` group. This grants no new privilege on a host where `ubuntu`
+already has passwordless sudo, and it does not touch the daemon or OLMIS.
+
+```bash
+ssh -i malawi-configuration/id_rsa ubuntu@<host> 'sudo usermod -aG docker ubuntu'
+```
+
+Group membership applies at the **next** login — a fresh SSH session (which is
+what every Jenkins run opens) picks it up. Reverse with
+`sudo gpasswd -d ubuntu docker`.
+
+### 0e. Add swap (OOM safety net)
+
+With 0 swap, a memory spike makes the kernel kill a process outright — possibly
+an OLMIS container. A 4 GB swap **file** on the existing EBS volume costs
+nothing extra (EBS is billed by provisioned size, already paid) and is purely
+insurance, not capacity. `swappiness=10` keeps the kernel off swap until real
+pressure.
+
+```bash
+ssh -i malawi-configuration/id_rsa ubuntu@<host> 'sudo bash -s' <<'REMOTE'
+set -euo pipefail
+if ! swapon --show | grep -q .; then
+  [ -f /swapfile ] || fallocate -l 4G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=4096 status=none
+  chmod 600 /swapfile
+  mkswap /swapfile >/dev/null
+  swapon /swapfile
+fi
+grep -q '^/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+sysctl -w vm.swappiness=10 >/dev/null
+grep -q '^vm.swappiness' /etc/sysctl.conf || echo 'vm.swappiness=10' >> /etc/sysctl.conf
+swapon --show; free -h
+REMOTE
+```
+
+### 0f. Verify host prep end-to-end (fresh session)
+
+A **new** SSH session confirms the docker-group change took effect, the socket
+is reachable without sudo, and Compose v2 can actually drive the old daemon:
+
+```bash
+ssh -i malawi-configuration/id_rsa ubuntu@<host> '
+  id | grep -o docker                 # ubuntu is in the docker group
+  docker compose version              # plugin recognized
+  docker ps >/dev/null && echo "socket OK as ubuntu"
+  docker compose ls                   # KEY: compose v2 talks to the daemon (lists dev_env)
+  swapon --show                       # swap active
+'
+```
+
+A benign `No label "com.docker.compose.project.config_files"` warning on
+`docker compose ls` is expected — it just means OLMIS was created with compose
+v1. It does not affect the reporting-stack project.
+
+### 0g. Create the deploy target directory
+
+```bash
+ssh -i malawi-configuration/id_rsa ubuntu@<host> 'sudo mkdir -p /opt/reporting-stack && sudo chown ubuntu:ubuntu /opt/reporting-stack'
+```
+
+The deploy script also does this, but pre-creating surfaces any permission
+issue outside a Jenkins run. Path must match `REPORTING_REMOTE_PATH` in
+`deploy_to_dev_env.sh` and `REPORTING_HOST_ROOT` in `.env.reporting-stack`.
 
 ---
 
@@ -91,11 +202,15 @@ In AWS console (or via CLI), edit parameter group `postgres14`:
 
 | Parameter                          | Value | Notes                                              |
 | ---------------------------------- | ----- | -------------------------------------------------- |
-| `rds.logical_replication`          | `1`   | Required. Sets `wal_level=logical`.                |
-| `max_wal_senders`                  | `10`  | PG14 default is 10; leave or raise.                |
-| `max_replication_slots`            | `10`  | PG14 default is 10.                                |
+| `rds.logical_replication`          | `1`   | Required. Static — sets `wal_level=logical`, needs reboot. |
+| `max_wal_senders`                  | `20`  | Already 20 on dev — leave as-is.                   |
+| `max_replication_slots`            | `20`  | Already 20 on dev — leave as-is.                   |
 | `max_logical_replication_workers`  | `4`   | Optional, only matters if many subscribers.        |
-| `wal_sender_timeout`               | `0`   | Optional. Avoids killing slow connectors. Use cautiously — 0 disables timeout entirely. |
+
+> On the dev box, `max_wal_senders`/`max_replication_slots` were already 20, so
+> `rds.logical_replication=1` is the only required change. If the attached group
+> is `default.postgres14` it cannot be edited — create a custom group, set the
+> parameter, and associate it (association also requires a reboot).
 
 ### 1b. Reboot the RDS instance
 
@@ -111,16 +226,21 @@ psql "postgresql://mw_user@malawi-dev-postgresql-db.ckvxhrmwuhtv.us-east-1.rds.a
 
 ### 1c. Grant replication privilege
 
-`mw_user` is the master user, so it already has `rds_superuser`. Confirm
-it can replicate:
+`mw_user` is the master user (has `rds_superuser`) but does NOT have the
+replication attribute by default (confirmed `rolreplication = f` on dev).
+On RDS the master user is not a true superuser, so `ALTER ROLE ... WITH
+REPLICATION` **fails** — use the RDS role grant instead:
+```sql
+GRANT rds_replication TO mw_user;
+```
+Verify:
 ```
 psql ... -c "SELECT rolname, rolreplication FROM pg_roles WHERE rolname='mw_user';"
 ```
-If `rolreplication = f`, run:
-```sql
-ALTER ROLE mw_user WITH REPLICATION;
-```
-(Equivalent of `GRANT rds_replication TO mw_user` on RDS.)
+Note: `rolreplication` may still read `f` after the grant — RDS authorizes
+replication via the `rds_replication` role membership rather than the role
+attribute, and Debezium connects fine with it. The real test is the connector
+creating its slot at deploy time.
 
 ### 1d. Create publication, signal, and heartbeat objects
 
@@ -204,23 +324,24 @@ EC2 host's egress. Confirm:
 
 ---
 
-## Step 2 — (Optional, recommended) Connector SSL
+## Step 2 — Connector SSL (already wired, env-driven)
 
-The current connector template at
-`examples/olmis-analytics-core/connect/openlmis-postgres-cdc.json` does not
-set `database.sslmode`. RDS accepts both SSL and non-SSL connections by
-default, so the first deploy works without this change. To enforce TLS
-in-transit, add to the template:
+This is **done** in the platform repo (branch `dev-reporting-stack`). The
+connector template now reads `"database.sslmode": "${SOURCE_PG_SSLMODE}"`,
+`register-connector.sh` defaults it to `prefer`, and the Malawi
+`.env.reporting-stack` sets `SOURCE_PG_SSLMODE=require`. No template edit is
+needed at deploy time.
 
-```json
-"database.sslmode": "require",
+Why `require`: RDS accepts both SSL and plaintext by default, but if the
+`postgres14` parameter group has `rds.force_ssl=1`, plaintext is **rejected**
+and the connector would fail without it. `require` encrypts in transit with no
+extra setup. `verify-full` (server-cert verification) is a later hardening
+step — it needs the RDS CA bundle mounted into the kafka-connect image.
+
+Check whether SSL is merely good practice or strictly mandatory here:
 ```
-
-(Use `verify-full` only if you mount the RDS CA bundle into the kafka-connect
-container — leave that for a follow-up.)
-
-Skip this step for the very first deploy if you want to minimize moving
-parts. Come back to it once the pipeline is green.
+psql ... -c "SHOW rds.force_ssl;"
+```
 
 ---
 
@@ -247,13 +368,36 @@ PR or branch). Before deploying:
 
 **Don't modify the existing `dev` job — clone it.**
 
+**Workspace layout the deploy script expects.** All three SCMs check out
+*under* the Jenkins workspace root. The deployment repo sits at the root; the
+other two MUST be placed in their own subdirectories or they collide with the
+deployment repo's files at the root:
+
+```
+$WORKSPACE/                       <- mw-openlmis-deployment  (no subdir)
+├── deployment/dev_env/...
+├── credentials/                  <- malawi-configuration    (subdir "credentials")
+│   ├── .env
+│   ├── .env.reporting-stack
+│   └── id_rsa
+└── openlmis-reporting/           <- soldevelo-reporting-stack (subdir "openlmis-reporting")
+```
+
+The script resolves these via `$WORKSPACE` (`credentials/` and
+`openlmis-reporting/`). If you must use a different subdirectory name for the
+reporting repo, set `REPORTING_REPO_LOCAL` as a job env var to match.
+
 1. In Jenkins, copy the `dev` job → name it e.g. `dev-with-reporting-stack`.
-2. On the clone, add a **third SCM checkout** for `openlmis-reporting`:
+2. On the clone, add a **third SCM checkout** for `soldevelo-reporting-stack`:
    - Repository URL: the openlmis-reporting Git URL
-   - Branch specifier: parameterize as `*/main` (or a feature branch while
-     iterating)
-   - Local subdirectory: leave default — should produce sibling layout
-     with the other two repos
+   - Branch specifier: `*/dev-reporting-stack`
+   - **Checkout to a sub-directory: `openlmis-reporting`** (Git plugin →
+     Additional Behaviours → "Check out to a sub-directory"). This is
+     REQUIRED — without it the repo checks out to the workspace root and
+     collides with mw-openlmis-deployment.
+   - Confirm `malawi-configuration` already checks out to sub-directory
+     `credentials`, and `mw-openlmis-deployment` checks out to the root
+     (no sub-directory).
 3. On the clone, change branch parameters:
    - `mw-openlmis-deployment` → `*/<your feature branch>` (containing the
      extended `deploy_to_dev_env.sh` and this runbook)
