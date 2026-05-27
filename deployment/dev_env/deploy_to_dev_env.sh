@@ -120,6 +120,24 @@ if [ "${KEEP_OR_WIPE:-keep}" = "wipe" ]; then
   make reset || true
 fi
 
+# --- Old-Docker workaround (REMOVE after the host's Docker/OS upgrade) -------
+# Two issues with Docker 19.03 on this host are handled here:
+#  1) BuildKit (compose's default builder) STRIPS the inherited Cmd/Entrypoint
+#     from FROM+COPY images -> containers fail to start with "No command
+#     specified". The classic builder (DOCKER_BUILDKIT=0) preserves it, so we
+#     pre-build the custom images here; `make up` then reuses them (no rebuild).
+#  2) The old libseccomp rejects the clone3 syscall. The Dockerfiles avoid it at
+#     BUILD time (pip --progress-bar off; dbt on a bullseye base), so the classic
+#     builder's old seccomp profile can build them. The seccomp-unconfined
+#     compose overlay (+ DBT_DOCKER_SECCOMP in .env for the dbt run) covers
+#     RUNTIME clone3.
+echo "Pre-building custom images with the classic builder..."
+for spec in kafka-connect:connect airflow:airflow superset:superset; do
+  name="${spec%%:*}"; ctx="${spec##*:}"
+  DOCKER_BUILDKIT=0 docker build -t "soldevelo-reporting-stack/${name}:latest" "$ctx"
+done
+
+export COMPOSE_OVERLAY=compose/docker-compose.seccomp-unconfined.yml
 make up
 make setup
 REMOTE
