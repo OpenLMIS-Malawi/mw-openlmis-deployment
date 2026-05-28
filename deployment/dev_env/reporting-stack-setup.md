@@ -482,7 +482,18 @@ Once the new stack is verified on `lmis-dev`:
 
 ---
 
-## Follow-ups (after a green first deploy)
+## Known limits / follow-ups (after a green first deploy)
+
+- **`make setup` re-runs `dbt build` and that can blow up on real data.** On
+  Malawi-sized data (28.8 M `requisition_line_items`, 49 M raw events) the
+  `mart_stock_status` rebuild approaches ClickHouse's `max_server_memory_usage`
+  and the server self-terminates. As a result, **Jenkins redeploys are NOT
+  safe** to run as-is — they will attempt a full rebuild that may damage
+  existing marts. The fix is a structural refactor (incremental materialization
+  for big marts + decoupling `make setup` from the initial dbt build).
+  See `openlmis-reporting/docs/incremental-refactor-plan.md` in the platform
+  repo. Until that lands, treat `make setup` as a one-time bootstrap and use
+  the Airflow `platform_refresh` DAG for routine refreshes.
 
 - **OAuth / Superset embedding from OLMIS UI.** The OLMIS `.env` has
   `SUPERSET_URL=https://reporting-lmis-dev.health.gov.mw` and
