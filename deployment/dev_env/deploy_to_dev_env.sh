@@ -120,6 +120,32 @@ if [ "${KEEP_OR_WIPE:-keep}" = "wipe" ]; then
   make reset || true
 fi
 
+# --- dbt-directory perms + AIRFLOW_DOCKER_GID alignment ---------------------
+# The Airflow scheduler runs as uid 50000 with group_add: ["$AIRFLOW_DOCKER_GID"]
+# so it can talk to /var/run/docker.sock. The same supplementary group is what
+# lets it (and host-shell operators running as `ubuntu`) write into the dbt
+# directory — specifically packages.yml, which scripts/dbt/run.sh regenerates.
+#
+# Two things have to be in sync:
+#   1. .env must carry the host's docker-group GID so compose's group_add
+#      receives the right value. We auto-detect from /var/run/docker.sock here
+#      so the deploy survives host rebuilds (the GID can shift between
+#      installs) without hand-editing malawi-configuration.
+#   2. The dbt/ directory must be group-owned by that GID and group-writable
+#      so a freshly rsync'd tree (default 0644 ubuntu:ubuntu) doesn't lock
+#      out the airflow uid the first time the DAG runs.
+DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)
+echo "Host docker.sock gid: $DOCKER_GID — applying to .env and dbt/ perms."
+
+if grep -q '^AIRFLOW_DOCKER_GID=' .env; then
+  sed -i "s|^AIRFLOW_DOCKER_GID=.*|AIRFLOW_DOCKER_GID=$DOCKER_GID|" .env
+else
+  echo "AIRFLOW_DOCKER_GID=$DOCKER_GID" >> .env
+fi
+
+chgrp -R "$DOCKER_GID" dbt
+chmod -R g+rwX dbt
+
 # --- Old-Docker workaround (REMOVE after the host's Docker/OS upgrade) -------
 # Two issues with Docker 19.03 on this host are handled here:
 #  1) BuildKit (compose's default builder) STRIPS the inherited Cmd/Entrypoint
