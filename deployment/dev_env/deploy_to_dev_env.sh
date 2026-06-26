@@ -165,6 +165,10 @@ done
 
 export COMPOSE_OVERLAY=compose/docker-compose.seccomp-unconfined.yml
 make up
+# Git-mode packages: clone core + extensions to .packages/ so the connector
+# and Superset importers (run by `make setup`) pick them up. dbt fetches its
+# own copy via packages.yml. No-op in local mode (ANALYTICS_CORE_GIT_URL unset).
+make package-fetch
 make setup
 REMOTE
 
