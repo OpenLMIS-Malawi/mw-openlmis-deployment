@@ -196,6 +196,17 @@ issue outside a Jenkins run. Path must match `REPORTING_REMOTE_PATH` in
 The Malawi dev DB is RDS PG14, parameter group `postgres14`. Logical
 replication is almost certainly off — none of the OLMIS services need it.
 
+> **`keep` vs `wipe`.** These steps bootstrap the source DB once. Steps 1a–1c
+> (logical replication, reboot, `rds_replication` grant) are permanent — they
+> survive a snapshot restore and never need re-running. Step 1d (the publication
+> + signal/heartbeat tables), however, lives *in the database* and is therefore
+> **destroyed on every `KEEP_OR_WIPE=wipe` build**, because wipe restores the DB
+> from a production snapshot that predates these objects. To stop that from
+> breaking the reporting-stack deploy, the same Step 1d SQL is re-applied
+> automatically after each restore by
+> `deployment/shared/restore/after_restore.sh`. Keep that script and the SQL
+> below in sync — see the drift note in 1d.
+
 ### 1a. Enable logical replication on the parameter group
 
 In AWS console (or via CLI), edit parameter group `postgres14`:
@@ -247,6 +258,13 @@ creating its slot at deploy time.
 Connect to `malawi_openlmis` as `mw_user`, run the SQL below. It's idempotent
 and mirrors `openlmis-ref-distro/reporting-stack/init-db.sql` from the
 reporting-stack platform, but adapted to apply directly to RDS.
+
+> **This SQL is duplicated in `deployment/shared/restore/after_restore.sh`**
+> so the `wipe` path re-applies it after each snapshot restore (see the Step 1
+> note above). If you add or remove a table here, make the same change there
+> **and** in `SOURCE_PG_TABLE_ALLOWLIST` in
+> `malawi-configuration/.env.reporting-stack` — the connector-registration
+> preflight fails if the three drift apart.
 
 ```sql
 -- Heartbeat: prevents WAL accumulation during idle periods
@@ -432,6 +450,16 @@ Expected log timeline:
 
 First snapshot can take a while depending on table sizes. The largest table
 (`requisition_line_items` historically) usually dominates.
+
+> **On a `KEEP_OR_WIPE=wipe` build the timeline differs at step 3:**
+> `restart_or_restore.sh` restores the DB from the latest RDS snapshot, and
+> `after_restore.sh` then (a) clears sensitive data and (b) re-applies the
+> Step 1d CDC objects (publication + signal/heartbeat tables) that the restore
+> wiped out. On the reporting-stack side, `deploy_to_dev_env.sh` also runs
+> `make reset` before `make up` so Debezium takes a fresh snapshot against the
+> restored DB. Watch for the `Re-applying reporting-stack CDC objects...` line
+> in the restore output — if it's missing, the connector-registration preflight
+> in step 6 will fail with a "not in publication `dbz_publication`" error.
 
 ---
 
