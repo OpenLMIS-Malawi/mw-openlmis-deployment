@@ -3,6 +3,8 @@
 # the https://xchange.health.gov.mw/adx certificate chain.
 
 FROM eclipse-temurin:8-jre AS certbuilder
+# Keep keytool's JVM tiny
+ENV JAVA_TOOL_OPTIONS="-XX:+UseSerialGC -Xmx64m -Xms16m -Xss512k"
 COPY --from=openlmismw/dhis2-integration:1.0.4 \
      /opt/jdk1.8.0_92/jre/lib/security/cacerts /work/cacerts
 COPY isrgrootx1.pem /tmp/isrgrootx1.pem
