@@ -118,9 +118,7 @@ services:
 
   dhis2-integration:
     restart: always
-    build:
-      context: config/dhis2-integration
-    image: openlmismw/dhis2-integration:1.0.4-truststore
+    image: openlmismw/dhis2-integration:1.0.5-SNAPSHOT
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
