@@ -47,6 +47,19 @@ services:
       # join the app network so Alloy can reach container IPs to scrape them
       - appnet
 
+  # postgres_exporter → RDS; Alloy discovers and scrapes it via the labels
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.20.1
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: ${PG_EXPORTER_DSN}
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "9187"
+      monitoring.service: "postgres"
+    networks:
+      - appnet
+
 volumes:
   alloy-data:
 
