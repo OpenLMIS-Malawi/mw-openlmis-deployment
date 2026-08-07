@@ -41,6 +41,11 @@ services:
   requisition:
     restart: always
     image: openlmis/requisition:8.4.0-hotfix.1
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/actuator/prometheus"
+      monitoring.service: "requisition"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx4096m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -54,6 +59,11 @@ services:
   referencedata:
     restart: always
     image: openlmis/referencedata:15.3.0-hotfix.1
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/actuator/prometheus"
+      monitoring.service: "referencedata"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -67,6 +77,11 @@ services:
   auth:
     restart: always
     image: openlmis/auth:4.3.5-hotfix.1
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/actuator/prometheus"
+      monitoring.service: "auth"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx1536m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -80,6 +95,11 @@ services:
   notification:
     restart: always
     image: openlmis/notification:4.3.5-hotfix.1
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/actuator/prometheus"
+      monitoring.service: "notification"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx512m -Dlogging.config=/config/log/logback.xml'
@@ -93,6 +113,11 @@ services:
   fulfillment:
     restart: always
     image: openlmis/fulfillment:9.2.0-hotfix.1
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/actuator/prometheus"
+      monitoring.service: "fulfillment"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -132,6 +157,11 @@ services:
   stockmanagement:
     restart: always
     image: openlmis/stockmanagement:5.3.0-hotfix.1
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/actuator/prometheus"
+      monitoring.service: "stockmanagement"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -145,6 +175,11 @@ services:
   buq:
     restart: always
     image: openlmis/buq:1.0.2-hotfix.1
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/actuator/prometheus"
+      monitoring.service: "buq"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx1024m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -158,6 +193,11 @@ services:
   hapifhir:
     restart: always
     image: openlmis/hapifhir:2.0.4-hotfix.1
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/actuator/prometheus"
+      monitoring.service: "hapifhir"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml'
