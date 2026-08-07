@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# Deploy the Grafana Alloy monitoring agent to an environment's Docker host.
-# Mirrors deployment/*/deploy_to_*_env.sh: per-environment config + secrets come
-# from the malawi-configuration checkout (Jenkins puts it in ../../credentials).
-# Run from a checkout with `credentials/` alongside (see the Jenkins job / README).
+# Deploy the Alloy agent to an environment's Docker host. Mirrors deploy_to_*_env.sh:
+# per-env config + secrets come from the malawi-configuration checkout (../../credentials).
 set -e
 
 cd "$(dirname "$0")"
@@ -10,7 +8,7 @@ cd "$(dirname "$0")"
 # per-environment config + secrets (INGEST_TOKEN, DOCKER_HOST, labels, network)
 cp ../../credentials/alloy.env ./.env
 
-# load DOCKER_HOST (and the rest) so docker-compose targets the right daemon
+# load DOCKER_HOST so docker-compose targets the right daemon
 set -a
 . ./.env
 set +a
