@@ -1,0 +1,133 @@
+// OpenLMIS Malawi host agent (Grafana Alloy): discover app containers via
+// docker labels, collect host + container metrics, tail logs, push to the
+// central /ingest/* endpoints. Env-configured. Based on the soldevelo-monitoring
+// agents-alloy bundle, plus an `environment` external label (uat|prod).
+
+// metrics: app containers (docker service discovery)
+
+discovery.docker "app" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "app" {
+  targets = discovery.docker.app.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_label_monitoring_scrape"]
+    regex         = "true"
+    action        = "keep"
+  }
+  rule {
+    source_labels = ["__meta_docker_network_ip", "__meta_docker_container_label_monitoring_port"]
+    separator     = ":"
+    target_label  = "__address__"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_monitoring_path"]
+    regex         = "(.+)"
+    target_label  = "__metrics_path__"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_monitoring_service"]
+    target_label  = "service"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "instance"
+  }
+}
+
+prometheus.scrape "app" {
+  targets         = discovery.relabel.app.output
+  forward_to      = [prometheus.remote_write.central.receiver]
+  scrape_interval = "15s"
+}
+
+// metrics: host + containers
+
+prometheus.exporter.unix "host" {
+  rootfs_path = "/host/root"
+  procfs_path = "/host/proc"
+  sysfs_path  = "/host/sys"
+}
+
+prometheus.scrape "host" {
+  targets    = prometheus.exporter.unix.host.targets
+  forward_to = [prometheus.remote_write.central.receiver]
+}
+
+prometheus.exporter.cadvisor "containers" {
+  docker_host = "unix:///var/run/docker.sock"
+}
+
+prometheus.scrape "cadvisor" {
+  targets    = prometheus.exporter.cadvisor.containers.targets
+  forward_to = [prometheus.remote_write.central.receiver]
+}
+
+prometheus.remote_write "central" {
+  endpoint {
+    url          = sys.env("INGEST_METRICS_URL")
+    bearer_token = sys.env("INGEST_TOKEN")
+  }
+  external_labels = {
+    app         = sys.env("APP"),
+    deployment  = sys.env("DEPLOYMENT"),
+    environment = sys.env("ENVIRONMENT"),
+    host        = sys.env("TARGET_NAME"),
+  }
+}
+
+// logs
+
+discovery.docker "logs" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "logs" {
+  targets = discovery.docker.logs.targets
+
+  // drop the agent's own logs (feedback loop)
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+    regex         = "soldevelo-monitoring-agents"
+    action        = "drop"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "container"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_label_monitoring_service"]
+    target_label  = "service"
+  }
+  rule {
+    target_label = "app"
+    replacement  = sys.env("APP")
+  }
+  rule {
+    target_label = "deployment"
+    replacement  = sys.env("DEPLOYMENT")
+  }
+  rule {
+    target_label = "environment"
+    replacement  = sys.env("ENVIRONMENT")
+  }
+  rule {
+    target_label = "host"
+    replacement  = sys.env("TARGET_NAME")
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.logs.output
+  forward_to = [loki.write.central.receiver]
+}
+
+loki.write "central" {
+  endpoint {
+    url          = sys.env("INGEST_LOGS_URL")
+    bearer_token = sys.env("INGEST_TOKEN")
+  }
+}
