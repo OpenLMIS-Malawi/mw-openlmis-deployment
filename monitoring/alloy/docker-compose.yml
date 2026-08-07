@@ -8,7 +8,13 @@ version: "2.4"
 
 services:
   alloy:
-    image: grafana/alloy:${ALLOY_VERSION}
+    # Build (not bind-mount) so config.alloy travels in the build context to the
+    # remote Docker daemon — a relative bind path would resolve on the remote host.
+    build:
+      context: .
+      args:
+        ALLOY_VERSION: ${ALLOY_VERSION}
+    image: soldevelo-monitoring-alloy:${ALLOY_VERSION}
     restart: unless-stopped
     command:
       - run
@@ -26,7 +32,9 @@ services:
     privileged: true          # cAdvisor cgroup/device access
     pid: host                 # unix exporter sees host processes
     volumes:
-      - ./config.alloy:/etc/alloy/config.alloy:ro,z
+      # config.alloy is baked into the image (see build:) — not bind-mounted,
+      # so this works against a remote Docker daemon. The mounts below are real
+      # paths on the Docker host (resolved on the remote host), which is correct.
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # unix (node) exporter
       - /proc:/host/proc:ro

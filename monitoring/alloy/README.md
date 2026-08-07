@@ -17,6 +17,12 @@ recreated on every service deploy.
 
 ## Deploy (per environment, via the remote Docker daemon)
 
+You do **not** put anything on the target host. Run this from wherever you run the
+app deploy (Jenkins, or a workstation with this repo checked out and the Docker-TLS
+certs) — the same remote-daemon model as `deploy_to_uat_env.sh`. `config.alloy` is
+baked into the image via the build context and sent to the remote daemon, so no file
+placement on the host is needed.
+
 ```sh
 cp .env.example .env
 # then edit .env:
@@ -29,7 +35,7 @@ export DOCKER_TLS_VERIFY=1
 export DOCKER_HOST=lmis-uat.health.gov.mw:2376      # prod host for the prod agent
 export DOCKER_CERT_PATH=/path/to/credentials
 
-docker-compose up -d
+docker-compose up -d --build           # --build bakes config.alloy in; rebuild after any config change
 docker-compose logs --tail=50 alloy    # expect no 4xx to the /ingest endpoints
 ```
 
