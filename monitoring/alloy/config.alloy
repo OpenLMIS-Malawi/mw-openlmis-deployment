@@ -1,7 +1,5 @@
-// OpenLMIS Malawi host agent (Grafana Alloy): discover app containers via
-// docker labels, collect host + container metrics, tail logs, push to the
-// central /ingest/* endpoints. Env-configured. Based on the soldevelo-monitoring
-// agents-alloy bundle, plus an `environment` external label (uat|prod).
+// OpenLMIS Malawi host agent: discover app containers, collect host/container
+// metrics, tail logs, push to /ingest/*. Env-configured; adds an `environment` label.
 
 // metrics: app containers (docker service discovery)
 
