@@ -130,7 +130,12 @@ services:
 
   reports:
     restart: always
-    image: openlmismw/reports:2.1.16
+    image: openlmismw/reports:2.1.16-hotfix.1
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/prometheus"
+      monitoring.service: "reports"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx6144m -Xss1024k -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
@@ -144,6 +149,11 @@ services:
   dhis2-integration:
     restart: always
     image: openlmismw/dhis2-integration:1.0.5-SNAPSHOT
+    labels:
+      monitoring.scrape: "true"
+      monitoring.port: "8080"
+      monitoring.path: "/prometheus"
+      monitoring.service: "dhis2-integration"
     env_file: .env
     environment:
       JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
