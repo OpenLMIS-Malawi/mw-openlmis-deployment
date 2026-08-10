@@ -15,26 +15,32 @@
 
     <logger name="org.openlmis.auth" level="WARN" additivity="false">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <logger name="org.openlmis.notification" level="WARN" additivity="false">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <logger name="org.openlmis.referencedata" level="WARN" additivity="false">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <logger name="org.openlmis.requisition" level="WARN" additivity="false">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <logger name="org.openlmis.stockmanagement" level="WARN" additivity="false">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <logger name="org.openlmis.integration.dhis2" level="WARN" additivity="false">
       <appender-ref ref="FILE"/>
+      <appender-ref ref="CONSOLE"/>
     </logger>
 
     <!-- Define the root logger log level -->
