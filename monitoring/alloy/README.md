@@ -26,13 +26,13 @@ placement on the host is needed.
 ```sh
 cp .env.example .env
 # then edit .env:
-#   ENVIRONMENT / TARGET_NAME  -> uat (malawi-uat) or prod (malawi-prod)
+#   ENVIRONMENT / TARGET_NAME  -> dev (malawi-dev), uat (malawi-uat) or prod (malawi-prod)
 #   APP_NETWORK                -> confirm with `docker network ls` on the host
 #   INGEST_TOKEN               -> the value from the monitoring host's .env (keep secret)
 
 # point at the environment's Docker daemon (same certs/host as the app deploy)
 export DOCKER_TLS_VERIFY=1
-export DOCKER_HOST=lmis-uat.health.gov.mw:2376      # prod host for the prod agent
+export DOCKER_HOST=lmis-uat.health.gov.mw:2376      # lmis-dev… for dev, prod host for prod
 export DOCKER_CERT_PATH=/path/to/credentials
 
 docker-compose up -d --build           # --build bakes config.alloy in; rebuild after any config change
@@ -60,8 +60,8 @@ real values come from `malawi-configuration`.
 
 ## Verify (on the monitoring host / Grafana Explore)
 
-- `count by (environment) (up)` shows `uat` (and `prod` once that agent is up).
-- `up{environment="uat"}` — the 8 labelled services report `1`.
+- `count by (environment) (up)` shows one series per deployed agent (`dev`, `uat`, `prod`).
+- `up{environment="uat"}` — every labelled service reports `1`.
 - Host/container metrics: `node_uname_info{host="malawi-uat"}`, cAdvisor series.
 - Logs: `{environment="uat"}` in Loki.
 
@@ -70,6 +70,7 @@ real values come from `malawi-configuration`.
 - `COMPOSE_PROJECT_NAME=soldevelo-monitoring-agents` (in `.env`) must stay stable —
   `config.alloy` drops the agent's own logs by that project name (self-loop guard).
 - Alloy joins `APP_NETWORK` to reach container IPs; it scrapes each labelled
-  container at `monitoring.port` + `monitoring.path` (`:8080/actuator/prometheus`).
+  container at `monitoring.port` + `monitoring.path` — `/actuator/prometheus` on the
+  Boot 2 services, `/prometheus` on the Boot 1.5 forks (reports, dhis2-integration).
 - Adapted from the `soldevelo-monitoring` `agents-alloy/` bundle, plus an
   `environment` external label for the shared UAT+Prod monitoring host.
