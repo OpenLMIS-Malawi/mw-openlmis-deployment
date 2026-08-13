@@ -148,7 +148,7 @@ services:
 
   dhis2-integration:
     restart: always
-    image: openlmismw/dhis2-integration:1.0.4-hotfix.1
+    image: openlmismw/dhis2-integration:1.0.5
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
