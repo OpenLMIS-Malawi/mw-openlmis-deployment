@@ -40,7 +40,7 @@ services:
 
   requisition:
     restart: always
-    image: openlmis/requisition:8.6.0-SNAPSHOT
+    image: openlmis/requisition:8.5.1
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
@@ -58,7 +58,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:15.6.0-SNAPSHOT
+    image: openlmis/referencedata:15.6.0
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
@@ -76,7 +76,7 @@ services:
 
   auth:
     restart: always
-    image: openlmis/auth:4.5.0-SNAPSHOT
+    image: openlmis/auth:4.5.0
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
@@ -130,7 +130,7 @@ services:
 
   reports:
     restart: always
-    image: openlmismw/reports:2.2.0-SNAPSHOT
+    image: openlmismw/reports:2.1.16
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
