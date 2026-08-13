@@ -40,7 +40,7 @@ services:
 
   requisition:
     restart: always
-    image: openlmis/requisition:8.5.1
+    image: openlmis/requisition:8.6.0-SNAPSHOT
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
