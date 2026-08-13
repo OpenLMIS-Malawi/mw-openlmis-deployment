@@ -130,7 +130,7 @@ services:
 
   reports:
     restart: always
-    image: openlmismw/reports:2.1.16
+    image: openlmismw/reports:2.2.0-SNAPSHOT
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
