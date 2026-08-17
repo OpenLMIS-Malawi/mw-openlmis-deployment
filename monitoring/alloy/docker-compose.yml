@@ -11,6 +11,10 @@ services:
         ALLOY_VERSION: ${ALLOY_VERSION}
     image: soldevelo-monitoring-alloy:${ALLOY_VERSION}
     restart: unless-stopped
+    # Pins `instance` on the agent's own exporter targets. Without it the
+    # container ID is used, so rebuilding the agent orphans every series it
+    # produced and AgentAbsent fires for a routine upgrade.
+    hostname: ${TARGET_NAME}
     command:
       - run
       - /etc/alloy/config.alloy

@@ -1,7 +1,8 @@
 // OpenLMIS Malawi host agent: discover app containers, collect host/container
 // metrics, tail logs, push to /ingest/*. Env-configured; adds an `environment` label.
+// Kept in sync with soldevelo-monitoring/agents-alloy/config.alloy — diff before editing.
 
-// metrics: app containers (docker service discovery)
+// metrics: app containers (docker SD)
 
 discovery.docker "app" {
   host = "unix:///var/run/docker.sock"
@@ -35,13 +36,23 @@ discovery.relabel "app" {
   }
 }
 
+// `job` is the package's collector-kind contract — app / node / cadvisor /
+// agent — and alert rules key on it. Service identity lives in `service`, not
+// here. Never let it default to the Alloy component name: rules would then be
+// pinned to this file's internal structure. See docs/metrics.md.
 prometheus.scrape "app" {
   targets         = discovery.relabel.app.output
   forward_to      = [prometheus.remote_write.central.receiver]
+  job_name        = "app"
   scrape_interval = "15s"
 }
 
 // metrics: host + containers
+//
+// prometheus.exporter.* components preset `job` on their own targets
+// (`integrations/unix`, `integrations/cadvisor`), and Prometheus only applies
+// a scrape's job_name when the target's job label is empty — so the kind label
+// has to be rewritten here, not on the scrape.
 
 prometheus.exporter.unix "host" {
   rootfs_path = "/host/root"
@@ -49,8 +60,17 @@ prometheus.exporter.unix "host" {
   sysfs_path  = "/host/sys"
 }
 
+discovery.relabel "host" {
+  targets = prometheus.exporter.unix.host.targets
+
+  rule {
+    target_label = "job"
+    replacement  = "node"
+  }
+}
+
 prometheus.scrape "host" {
-  targets    = prometheus.exporter.unix.host.targets
+  targets    = discovery.relabel.host.output
   forward_to = [prometheus.remote_write.central.receiver]
 }
 
@@ -58,8 +78,39 @@ prometheus.exporter.cadvisor "containers" {
   docker_host = "unix:///var/run/docker.sock"
 }
 
+discovery.relabel "cadvisor" {
+  targets = prometheus.exporter.cadvisor.containers.targets
+
+  rule {
+    target_label = "job"
+    replacement  = "cadvisor"
+  }
+}
+
 prometheus.scrape "cadvisor" {
-  targets    = prometheus.exporter.cadvisor.containers.targets
+  targets    = discovery.relabel.cadvisor.output
+  forward_to = [prometheus.remote_write.central.receiver]
+}
+
+// metrics: the agent itself
+//
+// The heartbeat AgentAbsent keys on. In a push model a dead host cannot report
+// itself down — its series simply stop arriving — so this is what makes the
+// absence detectable centrally.
+
+prometheus.exporter.self "agent" {}
+
+discovery.relabel "agent" {
+  targets = prometheus.exporter.self.agent.targets
+
+  rule {
+    target_label = "job"
+    replacement  = "agent"
+  }
+}
+
+prometheus.scrape "agent" {
+  targets    = discovery.relabel.agent.output
   forward_to = [prometheus.remote_write.central.receiver]
 }
 
