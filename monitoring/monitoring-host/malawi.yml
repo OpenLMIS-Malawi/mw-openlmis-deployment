@@ -1,0 +1,55 @@
+# Per-deployment Prometheus rules for the Malawi monitoring host.
+#
+# Deployed to /opt/soldevelo-monitoring/prometheus/rules/overlay/malawi.yml —
+# that path is gitignored in the soldevelo-monitoring package (overlay files
+# belong to the deployment, not the base), so this repo holds the master copy.
+# See README.md in this directory.
+groups:
+  - name: agent-inventory
+    rules:
+      # Host inventory is written down rather than inferred from history: an
+      # absence rule built on "what was reporting 2h ago" can never fire for a
+      # host that has never once reported. `for: 5m` is deliberately shorter
+      # than every alert this inhibits (ServiceDown 10m, ServiceAbsent 30m,
+      # ContainerAbsent 30m) — Alertmanager only suppresses alerts already
+      # firing when the source fires.
+      - alert: AgentAbsent
+        expr: absent(up{job="agent", deployment="malawi", environment="prod", host="malawi-prod"})
+        for: 5m
+        labels:
+          severity: critical
+          app: openlmis
+          deployment: malawi
+          environment: prod
+          host: malawi-prod
+        annotations:
+          summary: "Monitoring agent absent: malawi-prod (prod)"
+          description: "No metrics have arrived from the Alloy agent on malawi-prod for 5m. The host, the agent, or the network path to the monitoring host is down — everything else reported for this host is stale."
+
+      - alert: AgentAbsent
+        expr: absent(up{job="agent", deployment="malawi", environment="uat", host="malawi-uat"})
+        for: 5m
+        labels:
+          severity: critical
+          app: openlmis
+          deployment: malawi
+          environment: uat
+          host: malawi-uat
+        annotations:
+          summary: "Monitoring agent absent: malawi-uat (uat)"
+          description: "No metrics have arrived from the Alloy agent on malawi-uat for 5m. The host, the agent, or the network path to the monitoring host is down — everything else reported for this host is stale."
+
+      - alert: AgentAbsent
+        # Notified nowhere: environment="dev" routes to the null receiver.
+        # Kept so the dev agent's state is visible in Prometheus and Grafana.
+        expr: absent(up{job="agent", deployment="malawi", environment="dev", host="malawi-dev"})
+        for: 5m
+        labels:
+          severity: critical
+          app: openlmis
+          deployment: malawi
+          environment: dev
+          host: malawi-dev
+        annotations:
+          summary: "Monitoring agent absent: malawi-dev (dev)"
+          description: "No metrics have arrived from the Alloy agent on malawi-dev for 5m. The host, the agent, or the network path to the monitoring host is down — everything else reported for this host is stale."
