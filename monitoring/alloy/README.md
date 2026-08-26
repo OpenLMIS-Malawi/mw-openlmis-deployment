@@ -1,9 +1,9 @@
 # Grafana Alloy agent (OpenLMIS Malawi monitoring)
 
 One Alloy agent per environment host. It discovers the OpenLMIS containers
-(via `monitoring.*` labels), collects host + container + app metrics and all
-container logs, and pushes them to the central monitoring host over
-authenticated HTTPS. Part of the `soldevelo-monitoring` migration (MW-1471).
+(via `monitoring.*` labels), collects host + container + app metrics, all
+container logs and the nginx access/error log files, and pushes them to the
+central monitoring host over authenticated HTTPS. Part of the `soldevelo-monitoring` migration (MW-1471).
 
 Runs as its own compose project, separate from the app stack — so it isn't
 recreated on every service deploy.
@@ -64,11 +64,17 @@ real values come from `malawi-configuration`.
 - `up{environment="uat"}` — every labelled service reports `1`.
 - Host/container metrics: `node_uname_info{host="malawi-uat"}`, cAdvisor series.
 - Logs: `{environment="uat"}` in Loki.
+- nginx access log: `{container="nginx"} |= "HTTP/1.1"` — the only stream read from
+  files, not container stdout. Up to 30 s behind (nginx buffers with `flush=30s`).
 
 ## Notes
 
 - `COMPOSE_PROJECT_NAME=soldevelo-monitoring-agents` (in `.env`) must stay stable —
   `config.alloy` drops the agent's own logs by that project name (self-loop guard).
+- The nginx reverse proxy logs to files in the `nginx-log` volume and nothing to
+  stdout, so `config.alloy` tails `/var/lib/docker/volumes/*_nginx-log/_data/*.log`
+  through the `/var/lib/docker` mount cAdvisor already needs. ELB health checks are
+  dropped; `tail_from_end` keeps the unrotated 400 MB+ `access.log` from backfilling.
 - Alloy joins `APP_NETWORK` to reach container IPs; it scrapes each labelled
   container at `monitoring.port` + `monitoring.path` — `/actuator/prometheus` on the
   Boot 2 services, `/prometheus` on the Boot 1.5 forks (reports, dhis2-integration).

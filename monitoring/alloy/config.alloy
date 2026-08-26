@@ -1,6 +1,8 @@
 // OpenLMIS Malawi host agent: discover app containers, collect host/container
 // metrics, tail logs, push to /ingest/*. Env-configured; adds an `environment` label.
 // Kept in sync with soldevelo-monitoring/agents-alloy/config.alloy — diff before editing.
+// Deliberate divergence: the nginx file-log tailing below is OpenLMIS-specific —
+// sdd and ilo have no container that logs to files instead of stdout.
 
 // metrics: app containers (docker SD)
 
@@ -172,6 +174,45 @@ loki.source.docker "containers" {
   host       = "unix:///var/run/docker.sock"
   targets    = discovery.relabel.logs.output
   forward_to = [loki.write.central.receiver]
+}
+
+// logs: nginx access/error
+//
+// The reverse proxy writes to files in the `nginx-log` volume (NGINX_LOG_DIR) and
+// nothing to stdout, so loki.source.docker above never sees it — the one stream
+// DataSet carried that Loki did not. Read through the /var/lib/docker mount that
+// is already there for cAdvisor, so this needs no compose or alloy.env change.
+// `filename` (set by loki.source.file) separates access.log from error.log.
+
+local.file_match "nginx" {
+  path_targets = [{
+    __path__    = "/var/lib/docker/volumes/*_nginx-log/_data/*.log",
+    container   = "nginx",
+    service     = "nginx",
+    app         = sys.env("APP"),
+    deployment  = sys.env("DEPLOYMENT"),
+    environment = sys.env("ENVIRONMENT"),
+    host        = sys.env("TARGET_NAME"),
+  }]
+}
+
+loki.source.file "nginx" {
+  targets    = local.file_match.nginx.targets
+  forward_to = [loki.process.nginx.receiver]
+  // access.log is never rotated (400 MB+ on dev); without this the first start
+  // backfills every historical line.
+  tail_from_end = true
+}
+
+loki.process "nginx" {
+  forward_to = [loki.write.central.receiver]
+
+  // ELB health checks are ~34k/day/env of `GET / 200` — near enough all of the
+  // access log on a quiet env. Availability is covered by the blackbox probes.
+  stage.drop {
+    expression          = "ELB-HealthChecker"
+    drop_counter_reason = "nginx_health_check"
+  }
 }
 
 loki.write "central" {
