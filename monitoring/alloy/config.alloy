@@ -1,8 +1,8 @@
 // OpenLMIS Malawi host agent: discover app containers, collect host/container
 // metrics, tail logs, push to /ingest/*. Env-configured; adds an `environment` label.
 // Kept in sync with soldevelo-monitoring/agents-alloy/config.alloy — diff before editing.
-// Deliberate divergence: the nginx file-log tailing below is OpenLMIS-specific —
-// sdd and ilo have no container that logs to files instead of stdout.
+// Deliberate divergence: the nginx file-log tailing and the scalyr drop below are
+// OpenLMIS-specific (no scalyr container, no file-logging nginx on sdd/ilo).
 
 // metrics: app containers (docker SD)
 
@@ -142,6 +142,15 @@ discovery.relabel "logs" {
   rule {
     source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
     regex         = "soldevelo-monitoring-agents"
+    action        = "drop"
+  }
+
+  // drop the DataSet/Scalyr shipper's own stdout: ~385 lines/min, of which 99.6%
+  // is a failing dfstat.py tcollector plugin printing its usage text at WARNING.
+  // Dropped here, so it never leaves the host. Goes away with the DataSet sunset.
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    regex         = "scalyr"
     action        = "drop"
   }
   rule {

@@ -75,6 +75,8 @@ real values come from `malawi-configuration`.
   stdout, so `config.alloy` tails `/var/lib/docker/volumes/*_nginx-log/_data/*.log`
   through the `/var/lib/docker` mount cAdvisor already needs. ELB health checks are
   dropped; `tail_from_end` keeps the unrotated 400 MB+ `access.log` from backfilling.
+- The `scalyr` container's own stdout is dropped: ~385 lines/min of a failing
+  tcollector plugin, ~588k lines/day/env of no signal. Retire the rule with DataSet.
 - Alloy joins `APP_NETWORK` to reach container IPs; it scrapes each labelled
   container at `monitoring.port` + `monitoring.path` — `/actuator/prometheus` on the
   Boot 2 services, `/prometheus` on the Boot 1.5 forks (reports, dhis2-integration).
