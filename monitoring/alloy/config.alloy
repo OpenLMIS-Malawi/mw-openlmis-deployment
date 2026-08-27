@@ -157,6 +157,17 @@ discovery.relabel "logs" {
     source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
     target_label  = "container"
   }
+
+  // Fall back to the container's own name. Containers started outside compose
+  // (ad-hoc `docker run`, one-off jobs) have no compose service label; Loki drops
+  // empty labels, so without this they all share one {app,deployment,environment,
+  // host} stream and a single noisy one-off spends the whole 3MB/s per-stream
+  // budget for every one of them. Matches only while `container` is still empty.
+  rule {
+    source_labels = ["container", "__meta_docker_container_name"]
+    regex         = ";/?(.+)"
+    target_label  = "container"
+  }
   rule {
     source_labels = ["__meta_docker_container_label_monitoring_service"]
     target_label  = "service"
