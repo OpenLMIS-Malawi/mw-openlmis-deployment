@@ -2,6 +2,17 @@
 # v1-compose syntax to match the deploy tooling. See README.md.
 version: "2.4"
 
+# Same rotation the app stack uses (deployment/*/docker-compose.yml). The daemon
+# default is unlimited, and the agent is the container that has to keep reporting
+# while the host fills up — an ENOSPC here tears the metrics WAL and the agent
+# then loops on the torn segment instead of pushing.
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "7"
+
 services:
   alloy:
     # build (not bind-mount): config.alloy reaches the remote daemon via the context
@@ -50,6 +61,7 @@ services:
     networks:
       # join the app network so Alloy can reach container IPs to scrape them
       - appnet
+    logging: *default-logging
 
   # postgres_exporter → RDS; Alloy discovers and scrapes it via the labels
   postgres-exporter:
@@ -63,6 +75,7 @@ services:
       monitoring.service: "postgres"
     networks:
       - appnet
+    logging: *default-logging
 
 volumes:
   alloy-data:
