@@ -119,3 +119,46 @@ else
   echo "connector preflight will abort until the publication/signal tables exist." >&2
   exit 1
 fi
+
+# Monitoring role: the restore replaces the whole DB instance, so roles come from
+# the source (production) snapshot — the read-only role Prometheus' postgres_exporter
+# logs in with has to be re-applied on every wipe. ALTER covers the case where the
+# snapshot already carries the role. Skipped when MONITORING_USER_PASSWORD is unset,
+# so environments without monitoring are unaffected. Keep the password in sync with
+# PG_EXPORTER_DSN in malawi-configuration's alloy.env.
+MONITORING_USER="${MONITORING_USER:-olmis_monitoring}"
+
+if [ -n "${MONITORING_USER_PASSWORD:-}" ]; then
+  echo "Re-applying monitoring role ${MONITORING_USER}..."
+
+  role_exists=$(PGPASSWORD="${POSTGRES_PASSWORD}" psql \
+      -tAc "SELECT 1 FROM pg_roles WHERE rolname = '${MONITORING_USER}'" \
+      -h "${DB_HOST}" \
+      -p "${DB_PORT}" \
+      -d "${DB_NAME}" \
+      -U "${POSTGRES_USER}")
+
+  if [ "$role_exists" = "1" ]; then
+    role_sql="ALTER ROLE ${MONITORING_USER} WITH LOGIN PASSWORD '${MONITORING_USER_PASSWORD}';"
+  else
+    role_sql="CREATE ROLE ${MONITORING_USER} WITH LOGIN PASSWORD '${MONITORING_USER_PASSWORD}';"
+  fi
+  role_sql="${role_sql} GRANT pg_monitor TO ${MONITORING_USER};"
+
+  if PGPASSWORD="${POSTGRES_PASSWORD}" psql \
+      -v ON_ERROR_STOP=1 \
+      -h "${DB_HOST}" \
+      -p "${DB_PORT}" \
+      -d "${DB_NAME}" \
+      -U "${POSTGRES_USER}" \
+      -c "$role_sql"; then
+    echo "Success: monitoring role in place."
+  else
+    # Deliberately not fatal — a missing monitoring role degrades monitoring
+    # (pg_up=0, PostgreSQLDown fires) but must not fail an application deploy.
+    echo "WARNING: could not apply the ${MONITORING_USER} role — Prometheus will" >&2
+    echo "report pg_up=0 for this environment until it is restored." >&2
+  fi
+else
+  echo "MONITORING_USER_PASSWORD not set — skipping the monitoring role."
+fi
