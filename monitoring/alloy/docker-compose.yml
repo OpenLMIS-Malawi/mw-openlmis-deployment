@@ -28,7 +28,7 @@ services:
     hostname: ${TARGET_NAME}
     command:
       - run
-      - /etc/alloy/config.alloy
+      - /etc/alloy               # config.alloy + malawi.alloy, merged
       - --server.http.listen-addr=0.0.0.0:12345
       - --storage.path=/var/lib/alloy
     environment:
@@ -39,10 +39,11 @@ services:
       INGEST_METRICS_URL: ${INGEST_METRICS_URL}
       INGEST_LOGS_URL: ${INGEST_LOGS_URL}
       INGEST_TOKEN: ${INGEST_TOKEN}
+      LOG_DROP_SERVICES: ${LOG_DROP_SERVICES}
     privileged: true          # cAdvisor cgroup/device access
     pid: host                 # unix exporter sees host processes
     volumes:
-      # config.alloy is baked into the image (build:), not mounted here
+      # config is baked into the image (build:), not mounted here
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # unix (node) exporter
       - /proc:/host/proc:ro
