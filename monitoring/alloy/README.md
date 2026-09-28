@@ -8,6 +8,19 @@ central monitoring host over authenticated HTTPS. Part of the `soldevelo-monitor
 Runs as its own compose project, separate from the app stack — so it isn't
 recreated on every service deploy.
 
+## Config files
+
+| File | What |
+|---|---|
+| `config.alloy` | The `soldevelo-monitoring` package agent, **vendored** at the tag in `PACKAGE_VERSION`. Never edit it here. |
+| `malawi.alloy` | Malawi additions: the nginx file logs. |
+| `PACKAGE_VERSION` | Package tag `config.alloy` was copied from. |
+| `sync-from-package.sh` | Re-copies `config.alloy` for that tag; `--check` reports drift. |
+
+Both `.alloy` files are baked into the image and loaded as one config from
+`/etc/alloy`. To upgrade: bump `PACKAGE_VERSION`, run `./sync-from-package.sh`,
+read the diff and the package CHANGELOG, commit, deploy dev → uat → prod.
+
 ## Prerequisites
 
 - The environment's app stack is up (its docker network exists — that's `APP_NETWORK`).
@@ -72,13 +85,15 @@ real values come from `malawi-configuration`.
 - `COMPOSE_PROJECT_NAME=soldevelo-monitoring-agents` (in `.env`) must stay stable —
   `config.alloy` drops the agent's own logs by that project name (self-loop guard).
 - The nginx reverse proxy logs to files in the `nginx-log` volume and nothing to
-  stdout, so `config.alloy` tails `/var/lib/docker/volumes/*_nginx-log/_data/*.log`
+  stdout, so `malawi.alloy` tails `/var/lib/docker/volumes/*_nginx-log/_data/*.log`
   through the `/var/lib/docker` mount cAdvisor already needs. ELB health checks are
   dropped; `tail_from_end` keeps the unrotated 400 MB+ `access.log` from backfilling.
-- The `scalyr` container's own stdout is dropped: ~385 lines/min of a failing
-  tcollector plugin, ~588k lines/day/env of no signal. Retire the rule with DataSet.
+- The `scalyr` container's own stdout is dropped by `LOG_DROP_SERVICES=scalyr` in
+  `alloy.env`: ~385 lines/min of a failing tcollector plugin, ~588k lines/day/env of
+  no signal. Clear the value with DataSet.
 - Alloy joins `APP_NETWORK` to reach container IPs; it scrapes each labelled
   container at `monitoring.port` + `monitoring.path` — `/actuator/prometheus` on the
   Boot 2 services, `/prometheus` on the Boot 1.5 forks (reports, dhis2-integration).
-- Adapted from the `soldevelo-monitoring` `agents-alloy/` bundle, plus an
-  `environment` external label for the shared UAT+Prod monitoring host.
+- Compose file is v2.4 syntax because Jenkins runs `docker-compose` 1.23.2, which
+  cannot read the package's `agents-alloy/docker-compose.yml`. Only the config is
+  shared with the package, not the compose file.

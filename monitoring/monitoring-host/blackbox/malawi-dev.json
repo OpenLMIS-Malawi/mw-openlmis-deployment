@@ -1,0 +1,21 @@
+[
+  {
+    "targets": ["https://lmis-dev.health.gov.mw"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "public"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "app-direct",
+      "module": "http_2xx_insecure"
+    }
+  }
+]

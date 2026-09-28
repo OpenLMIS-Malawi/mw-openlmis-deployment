@@ -1,0 +1,21 @@
+[
+  {
+    "targets": ["https://lmis-uat.health.gov.mw"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "uat",
+      "check": "public"
+    }
+  },
+  {
+    "targets": ["https://malawi-uat-alb-712582468.eu-west-1.elb.amazonaws.com"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "uat",
+      "check": "app-direct",
+      "module": "http_2xx_insecure"
+    }
+  }
+]
