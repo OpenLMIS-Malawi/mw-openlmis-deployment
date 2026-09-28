@@ -20,6 +20,17 @@ it has no way to know which hosts a deployment expects. Deployed to:
 That path is gitignored in the package (overlay files belong to the
 deployment), which is why the master copy lives here.
 
+## `blackbox/malawi-<env>.json` — HTTP probe targets
+
+The public URL and the direct ALB address per environment. Deployed to:
+
+```
+/opt/soldevelo-monitoring/prometheus/targets/blackbox/malawi-<env>.json
+```
+
+Also gitignored in the package. Prometheus re-reads the directory every 30 s,
+so a changed file needs no reload.
+
 ## Deploying it
 
 The monitoring host is SSM-only — no SSH. From a machine with the
@@ -43,19 +54,19 @@ curl -s localhost:9090/api/v1/rules | jq -r '.data.groups[].name'
 
 ## Updating the stack itself
 
+The host tracks package tags. Check the current one with `git describe --tags`.
+
 ```sh
 cd /opt/soldevelo-monitoring
-git pull
-bin/render-configs.sh .env
-docker compose --env-file .env -f stack/docker-compose.yml up -d \
-  --force-recreate alertmanager prometheus-meta
-curl -X POST localhost:9090/-/reload
+git fetch --tags origin && git checkout vX.Y.Z
+bin/render-configs.sh && bin/validate.sh .env
+docker compose --env-file .env -f stack/docker-compose.yml up -d --force-recreate
 ```
 
-`prometheus` reloads in place (`--web.enable-lifecycle`); `prometheus-meta` has
-no lifecycle flag and must be recreated. Compose on that host needs
-`--env-file .env` explicitly — it reads `.env` from the compose file's
-directory, not the repo root.
+Run it with `bash` and `set -e`, and never pipe `validate.sh` (a `| tail`
+hides its exit code). Compose on that host needs `--env-file .env`
+explicitly — it reads `.env` from the compose file's directory, not the repo
+root. The overlay files survive a checkout, since the package ignores them.
 
 ## Dead man's switch
 
