@@ -1,0 +1,120 @@
+# Unit tests for the rules in malawi.yml. Run from the repository root, with the
+# Prometheus version the monitoring host runs:
+#
+#   docker run --rm -v "$PWD/monitoring/monitoring-host:/work:ro" -w /work/tests \
+#     --entrypoint promtool prom/prometheus:v2.55.1 test rules malawi_rules_test.yml
+rule_files:
+  - ../malawi.yml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    name: ServiceUnreachable fires 5m after one service stops answering while the app is up
+    input_series:
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example/referencedata",app="openlmis",deployment="malawi",environment="uat",check="service",service="referencedata"}'
+        values: "1x10 0x20"
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example",app="openlmis",deployment="malawi",environment="uat",check="app-direct"}'
+        values: "1x30"
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: ServiceUnreachable
+        exp_alerts: []          # failing since 11m, still inside `for: 5m`
+      - eval_time: 20m
+        alertname: ServiceUnreachable
+        exp_alerts:
+          - exp_labels:
+              alertname: ServiceUnreachable
+              severity: critical
+              job: blackbox_http
+              instance: https://uat-alb.example/referencedata
+              app: openlmis
+              deployment: malawi
+              environment: uat
+              check: service
+              service: referencedata
+            exp_annotations:
+              summary: "Service unreachable: referencedata (uat)"
+              description: "The probe of https://uat-alb.example/referencedata has failed for 5m while the application itself answers. 'referencedata' is down or no longer routed through the load balancer."
+
+  - interval: 1m
+    name: A restart shorter than 5m does not alert
+    input_series:
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example/requisition",app="openlmis",deployment="malawi",environment="uat",check="service",service="requisition"}'
+        values: "1x10 0x3 1x20"
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example",app="openlmis",deployment="malawi",environment="uat",check="app-direct"}'
+        values: "1x35"
+    alert_rule_test:
+      - eval_time: 16m
+        alertname: ServiceUnreachable
+        exp_alerts: []
+      - eval_time: 25m
+        alertname: ServiceUnreachable
+        exp_alerts: []
+
+  - interval: 1m
+    name: A whole-app outage is left to AppDown
+    input_series:
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example/auth",app="openlmis",deployment="malawi",environment="uat",check="service",service="auth"}'
+        values: "1x10 0x20"
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example",app="openlmis",deployment="malawi",environment="uat",check="app-direct"}'
+        values: "1x10 0x20"
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: ServiceUnreachable
+        exp_alerts: []
+
+  - interval: 1m
+    name: A service still down after the app recovers alerts 5m after the recovery
+    input_series:
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example/fulfillment",app="openlmis",deployment="malawi",environment="uat",check="service",service="fulfillment"}'
+        values: "1x10 0x30"
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example",app="openlmis",deployment="malawi",environment="uat",check="app-direct"}'
+        values: "1x10 0x5 1x25"   # app down 11m-16m
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ServiceUnreachable
+        exp_alerts: []          # suppressed until 16m, pending from 17m
+      - eval_time: 25m
+        alertname: ServiceUnreachable
+        exp_alerts:
+          - exp_labels:
+              alertname: ServiceUnreachable
+              severity: critical
+              job: blackbox_http
+              instance: https://uat-alb.example/fulfillment
+              app: openlmis
+              deployment: malawi
+              environment: uat
+              check: service
+              service: fulfillment
+            exp_annotations:
+              summary: "Service unreachable: fulfillment (uat)"
+              description: "The probe of https://uat-alb.example/fulfillment has failed for 5m while the application itself answers. 'fulfillment' is down or no longer routed through the load balancer."
+
+  - interval: 1m
+    name: An outage in another environment does not hide this one
+    input_series:
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example/notification",app="openlmis",deployment="malawi",environment="uat",check="service",service="notification"}'
+        values: "1x10 0x20"
+      - series: 'probe_success{job="blackbox_http",instance="https://uat-alb.example",app="openlmis",deployment="malawi",environment="uat",check="app-direct"}'
+        values: "1x30"
+      - series: 'probe_success{job="blackbox_http",instance="https://prod-alb.example",app="openlmis",deployment="malawi",environment="prod",check="app-direct"}'
+        values: "1x10 0x20"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ServiceUnreachable
+        exp_alerts:
+          - exp_labels:
+              alertname: ServiceUnreachable
+              severity: critical
+              job: blackbox_http
+              instance: https://uat-alb.example/notification
+              app: openlmis
+              deployment: malawi
+              environment: uat
+              check: service
+              service: notification
+            exp_annotations:
+              summary: "Service unreachable: notification (uat)"
+              description: "The probe of https://uat-alb.example/notification has failed for 5m while the application itself answers. 'notification' is down or no longer routed through the load balancer."
