@@ -26,7 +26,8 @@
       "environment": "uat",
       "check": "service",
       "service": "auth",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   },
   {
@@ -37,7 +38,8 @@
       "environment": "uat",
       "check": "service",
       "service": "referencedata",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   },
   {
@@ -48,7 +50,8 @@
       "environment": "uat",
       "check": "service",
       "service": "requisition",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   },
   {
@@ -59,7 +62,8 @@
       "environment": "uat",
       "check": "service",
       "service": "fulfillment",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   },
   {
@@ -70,7 +74,8 @@
       "environment": "uat",
       "check": "service",
       "service": "notification",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   },
   {
@@ -81,7 +86,8 @@
       "environment": "uat",
       "check": "service",
       "service": "stockmanagement",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   },
   {
@@ -92,7 +98,8 @@
       "environment": "uat",
       "check": "service",
       "service": "reports",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   },
   {
@@ -103,7 +110,8 @@
       "environment": "uat",
       "check": "service",
       "service": "buq",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   },
   {
@@ -114,7 +122,8 @@
       "environment": "uat",
       "check": "service",
       "service": "hapifhir",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   },
   {
@@ -125,7 +134,8 @@
       "environment": "uat",
       "check": "service",
       "service": "dhis2-integration",
-      "module": "http_2xx_insecure"
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
     }
   }
 ]

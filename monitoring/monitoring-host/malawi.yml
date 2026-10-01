@@ -53,29 +53,3 @@ groups:
         annotations:
           summary: "Monitoring agent absent: malawi-dev (dev)"
           description: "No metrics have arrived from the Alloy agent on malawi-dev for 5m. The host, the agent, or the network path to the monitoring host is down — everything else reported for this host is stale."
-
-  - name: service-probes
-    rules:
-      # One blackbox probe per OpenLMIS service, through the environment's load
-      # balancer (`check: service` in blackbox/malawi-<env>.json). The package's
-      # ProbeFailing only matches probes without a `check` label, so without this
-      # rule a failing service probe would notify nobody.
-      #
-      # `unless`: when the app-direct probe of the same environment fails too, the
-      # whole application is down and AppDown reports it once. Ten per-service
-      # alerts on top would only bury it.
-      #
-      # `for: 5m` rides over a service restart during a deploy: a Spring Boot
-      # service needs 60-120 s before it answers again.
-      #
-      # Nothing here is Malawi-specific; the labels come from the target files.
-      - alert: ServiceUnreachable
-        expr: |
-          probe_success{check="service"} == 0
-            unless on (app, deployment, environment) (probe_success{check="app-direct"} == 0)
-        for: 5m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Service unreachable: {{ $labels.service }} ({{ $labels.environment }})"
-          description: "The probe of {{ $labels.instance }} has failed for 5m while the application itself answers. '{{ $labels.service }}' is down or no longer routed through the load balancer."

@@ -8,34 +8,17 @@ pieces the package deliberately doesn't carry.
 
 `../alloy/` is the other side of the pair — what runs on each target host.
 
-## `malawi.yml` — alert rules
+## `malawi.yml` — agent inventory
 
-Deployed to:
+`AgentAbsent` for each of the three agent hosts. The package can't ship this:
+it has no way to know which hosts a deployment expects. Deployed to:
 
 ```
 /opt/soldevelo-monitoring/prometheus/rules/overlay/malawi.yml
 ```
 
 That path is gitignored in the package (overlay files belong to the
-deployment), which is why the master copy lives here. The file has two groups:
-
-- `agent-inventory`: `AgentAbsent` for each of the three agent hosts. The
-  package can't ship this, because it has no way to know which hosts a
-  deployment expects.
-- `service-probes`: `ServiceUnreachable` (critical) fires when a service probe
-  (`check: service`, see below) has failed for 5 minutes while the app-direct
-  probe of the same environment still succeeds. A whole-application outage is
-  left to the package's `AppDown`, so it arrives as one alert instead of one per
-  service. The package's `ProbeFailing` ignores probes that carry a `check`
-  label, so without this rule a failing service probe would alert nobody.
-
-`tests/malawi_rules_test.yml` holds promtool unit tests for
-`ServiceUnreachable`. Run them from the repository root:
-
-```sh
-docker run --rm -v "$PWD/monitoring/monitoring-host:/work:ro" -w /work/tests \
-  --entrypoint promtool prom/prometheus:v2.55.1 test rules malawi_rules_test.yml
-```
+deployment), which is why the master copy lives here.
 
 ## `blackbox/malawi-<env>.json` — HTTP probe targets
 
@@ -44,13 +27,21 @@ The targets are grouped by their `check` label:
 - `check: public` is the environment's public URL and `check: app-direct` its
   load balancer root. The package's `AppDown` and `PublicUrlUnreachable` use
   this pair.
-- `check: service` marks one probe per OpenLMIS service on the load balancer.
-  Each carries a `service` label, and `ServiceUnreachable` alerts on them.
-  Every path (`/auth`, `/referencedata`, ...) returns that service's version
-  JSON, so a 200 means the service itself answered through nginx. The probes go
-  to the load balancer rather than the public URL, so a DNS problem does not
-  look like a service outage. The `service` values match the
-  `monitoring.service` scrape labels in the environment's `docker-compose.yml`.
+- `check: service` marks one probe per OpenLMIS service on the load balancer,
+  with a `service` label. Every path (`/auth`, `/referencedata`, ...) returns
+  that service's version JSON, so a 200 means the service itself answered
+  through nginx. The probes go to the load balancer rather than the public URL,
+  so a DNS problem does not look like a service outage. The `service` values
+  match the `monitoring.service` scrape labels in the environment's
+  `docker-compose.yml`. Each probe sets `__scrape_interval__: "60s"`, so it
+  runs once a minute instead of every 15 s and adds fewer lines to the nginx
+  access log.
+
+`ServiceUnreachable`, the alert for the service probes, ships with the package:
+it lives in `prometheus/rules/blackbox_http_rules.yml` in soldevelo-monitoring,
+together with its unit tests. On a monitoring host running a package version
+without that rule, the service probes alert nobody, because the package's
+`ProbeFailing` ignores probes that carry a `check` label.
 
 Deployed to:
 
@@ -82,7 +73,7 @@ Verify it loaded:
 
 ```sh
 curl -s localhost:9090/api/v1/rules | jq -r '.data.groups[].name'
-# expect: agent-inventory and service-probes
+# expect: agent-inventory
 ```
 
 ## Updating the stack itself
