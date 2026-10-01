@@ -17,5 +17,125 @@
       "check": "app-direct",
       "module": "http_2xx_insecure"
     }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/auth"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "auth",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/referencedata"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "referencedata",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/requisition"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "requisition",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/fulfillment"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "fulfillment",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/notification"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "notification",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/stockmanagement"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "stockmanagement",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/reports"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "reports",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/buq"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "buq",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/hapifhir"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "hapifhir",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
+  },
+  {
+    "targets": ["https://malawi-dev-alb-1298278899.us-east-1.elb.amazonaws.com/dhis2integration"],
+    "labels": {
+      "app": "openlmis",
+      "deployment": "malawi",
+      "environment": "dev",
+      "check": "service",
+      "service": "dhis2-integration",
+      "module": "http_2xx_insecure",
+      "__scrape_interval__": "60s"
+    }
   }
 ]

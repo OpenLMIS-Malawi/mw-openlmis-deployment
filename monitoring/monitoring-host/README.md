@@ -22,7 +22,28 @@ deployment), which is why the master copy lives here.
 
 ## `blackbox/malawi-<env>.json` — HTTP probe targets
 
-The public URL and the direct ALB address per environment. Deployed to:
+The targets are grouped by their `check` label:
+
+- `check: public` is the environment's public URL and `check: app-direct` its
+  load balancer root. The package's `AppDown` and `PublicUrlUnreachable` use
+  this pair.
+- `check: service` marks one probe per OpenLMIS service on the load balancer,
+  with a `service` label. Every path (`/auth`, `/referencedata`, ...) returns
+  that service's version JSON, so a 200 means the service itself answered
+  through nginx. The probes go to the load balancer rather than the public URL,
+  so a DNS problem does not look like a service outage. The `service` values
+  match the `monitoring.service` scrape labels in the environment's
+  `docker-compose.yml`. Each probe sets `__scrape_interval__: "60s"`, so it
+  runs once a minute instead of every 15 s and adds fewer lines to the nginx
+  access log.
+
+`ServiceUnreachable`, the alert for the service probes, ships with the package:
+it lives in `prometheus/rules/blackbox_http_rules.yml` in soldevelo-monitoring,
+together with its unit tests. On a monitoring host running a package version
+without that rule, the service probes alert nobody, because the package's
+`ProbeFailing` ignores probes that carry a `check` label.
+
+Deployed to:
 
 ```
 /opt/soldevelo-monitoring/prometheus/targets/blackbox/malawi-<env>.json
@@ -44,6 +65,9 @@ aws ssm send-command --profile openlmis-malawi --region eu-west-1 \
 EOF
 curl -X POST localhost:9090/-/reload"]'
 ```
+
+The target files go to `/opt/soldevelo-monitoring/prometheus/targets/blackbox/`
+the same way and need no reload.
 
 Verify it loaded:
 
