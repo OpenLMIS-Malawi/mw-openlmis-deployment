@@ -33,14 +33,14 @@ services:
     logging: *default-logging
 
   ui:
-    image: openlmismw/ui:1.7.1
+    image: openlmismw/ui:1.7.3-SNAPSHOT
     env_file: .env
     depends_on: [consul]
     logging: *default-logging
 
   requisition:
     restart: always
-    image: openlmis/requisition:8.4.0-hotfix.1
+    image: openlmis/requisition:8.6.0
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
@@ -58,7 +58,7 @@ services:
 
   referencedata:
     restart: always
-    image: openlmis/referencedata:15.3.0-hotfix.1
+    image: openlmis/referencedata:15.6.0
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
@@ -76,7 +76,7 @@ services:
 
   auth:
     restart: always
-    image: openlmis/auth:4.3.5-hotfix.1
+    image: openlmis/auth:4.5.0
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
@@ -130,7 +130,7 @@ services:
 
   reports:
     restart: always
-    image: openlmismw/reports:2.1.16-hotfix.1
+    image: openlmismw/reports:2.2.0-SNAPSHOT
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
@@ -148,7 +148,7 @@ services:
 
   dhis2-integration:
     restart: always
-    image: openlmismw/dhis2-integration:1.0.5-SNAPSHOT
+    image: openlmismw/dhis2-integration:1.0.5
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
