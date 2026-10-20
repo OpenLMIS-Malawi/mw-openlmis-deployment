@@ -38,6 +38,14 @@ services:
     depends_on: [consul]
     logging: *default-logging
 
+  openlmis-ui:
+    image: openlmis/openlmis-ui:0.1.0-SNAPSHOT
+    env_file: .env
+    environment:
+      BASE_PATH: /v2
+    depends_on: [consul]
+    logging: *default-logging
+
   requisition:
     restart: always
     image: openlmis/requisition:8.6.0
