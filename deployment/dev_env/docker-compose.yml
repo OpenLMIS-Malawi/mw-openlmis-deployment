@@ -48,7 +48,7 @@ services:
 
   requisition:
     restart: always
-    image: openlmis/requisition:8.6.0
+    image: openlmis/requisition:8.6.0-hotfix.1
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
@@ -120,7 +120,7 @@ services:
 
   fulfillment:
     restart: always
-    image: openlmis/fulfillment:9.2.0-hotfix.1
+    image: openlmis/fulfillment:9.2.0-hotfix.2
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
@@ -174,7 +174,7 @@ services:
 
   stockmanagement:
     restart: always
-    image: openlmis/stockmanagement:5.3.0-hotfix.1
+    image: openlmis/stockmanagement:5.3.0-hotfix.2
     labels:
       monitoring.scrape: "true"
       monitoring.port: "8080"
