@@ -56,7 +56,7 @@ services:
       monitoring.service: "requisition"
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx3072m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration -Drequest.maxUrlLength=7000'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
@@ -182,7 +182,7 @@ services:
       monitoring.service: "stockmanagement"
     env_file: .env
     environment:
-      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration'
+      JAVA_OPTS: '-server -Xmx2048m -Dlogging.config=/config/log/logback.xml -Dflyway.locations=classpath:db/migration -Dspring.jpa.properties.hibernate.default_batch_fetch_size=100'
       spring_profiles_active: ${spring_profiles_active}
     volumes:
       - 'service-config:/config'
